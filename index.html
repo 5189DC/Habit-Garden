@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Habit Garden</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar" aria-label="Garden overview">
+        <div>
+          <p class="eyebrow">Habit Garden</p>
+          <h1>Water your habits. Grow your garden.</h1>
+        </div>
+        <div class="stats" aria-label="Garden statistics">
+          <div>
+            <span id="totalWatered">0</span>
+            <small>waterings</small>
+          </div>
+          <div>
+            <span id="plantsBloomed">0</span>
+            <small>blooms</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <form class="habit-form" id="habitForm">
+          <div class="form-header">
+            <h2>Add a habit</h2>
+            <p>Pick the action, then choose the plant it should become.</p>
+          </div>
+
+          <label>
+            Habit name
+            <input
+              id="habitName"
+              name="habitName"
+              type="text"
+              autocomplete="off"
+              maxlength="42"
+              placeholder="Example: Read 10 pages"
+              required
+            />
+          </label>
+
+          <fieldset>
+            <legend>Choose a plant</legend>
+            <div class="plant-picker" id="plantPicker"></div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Choose watering days</legend>
+            <div class="schedule-picker" id="schedulePicker"></div>
+          </fieldset>
+
+          <button class="primary-action" type="submit">Plant habit</button>
+        </form>
+
+        <section class="garden-panel" aria-label="Your garden">
+          <div class="panel-heading">
+            <div>
+              <h2>Your garden</h2>
+              <p id="gardenSubtitle">Each completion waters a plant once.</p>
+            </div>
+            <button class="ghost-action" id="resetGarden" type="button">Reset</button>
+          </div>
+          <div class="weather-actions">
+            <span id="weatherStatus" aria-live="polite">Garden sky is syncing...</span>
+            <button class="ghost-action" id="useLocation" type="button">Use my location</button>
+          </div>
+          <div class="garden-bed" id="gardenBed" aria-label="Garden bed with 10 plant plots"></div>
+          <div class="garden-grid" id="gardenGrid" aria-label="Habit details"></div>
+        </section>
+      </section>
+    </main>
+
+    <template id="habitCardTemplate">
+      <article class="habit-card">
+        <div class="plant-scene" aria-hidden="true"></div>
+        <div class="habit-info">
+          <div>
+            <h3></h3>
+            <p class="plant-name"></p>
+            <p class="last-watered"></p>
+          </div>
+          <div class="card-actions">
+            <button class="water-button" type="button">Water</button>
+            <button class="reset-plant-button" type="button">Reset plant</button>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-copy"></div>
+          <div class="progress-track">
+            <span></span>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
