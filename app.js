@@ -261,7 +261,17 @@ function renderGarden() {
       "--progress",
       `${Math.max(0, Math.min(1, stageProgress)) * 100}%`,
     );
-    card.querySelector(".water-button").addEventListener("click", () => {
+    const waterButton = card.querySelector(".water-button");
+    const wateredToday = wasWateredToday(habit);
+    waterButton.disabled = wateredToday;
+    waterButton.textContent = wateredToday ? "Done today" : "Water";
+    waterButton.setAttribute(
+      "aria-label",
+      wateredToday
+        ? `${habit.name} has already been watered today`
+        : `Water ${habit.name}`,
+    );
+    waterButton.addEventListener("click", () => {
       waterHabit(habit);
     });
     card.querySelector(".reset-plant-button").addEventListener("click", () => {
@@ -296,6 +306,7 @@ function createGardenPlot(habit, index) {
   const schedule = getSchedule(habit.scheduleId || habit.plantId);
   const stage = getStage(habit, plant, schedule);
   const habitStatus = getHabitStatus(habit, schedule);
+  const wateredToday = wasWateredToday(habit);
   plot.classList.add(`stage-${stage + 1}`, habitStatus);
   plot.innerHTML = `
     <div class="plot-soil" aria-hidden="true">
@@ -311,7 +322,11 @@ function createGardenPlot(habit, index) {
       <span>${schedule.label} - ${habit.waterings} waterings</span>
       <em>${getHabitStatusText(habitStatus)}</em>
     </div>
-    <button class="plot-water" type="button" aria-label="Water ${escapeHtml(habit.name)}">Water</button>
+    <button class="plot-water" type="button" aria-label="${
+      wateredToday
+        ? `${escapeHtml(habit.name)} has already been watered today`
+        : `Water ${escapeHtml(habit.name)}`
+    }"${wateredToday ? " disabled" : ""}>${wateredToday ? "Done today" : "Water"}</button>
   `;
 
   plot.querySelector(".plot-water").addEventListener("click", () => {
@@ -322,6 +337,8 @@ function createGardenPlot(habit, index) {
 }
 
 function waterHabit(habit) {
+  if (wasWateredToday(habit)) return;
+
   habit.waterings += 1;
   habit.lastWateredAt = new Date().toISOString();
   saveState();
@@ -385,6 +402,18 @@ function wasWateredRecently(habit) {
   if (Number.isNaN(lastWateredDate.getTime())) return false;
 
   return Date.now() - lastWateredDate.getTime() < 1000 * 90;
+}
+
+function wasWateredToday(habit) {
+  if (!habit.lastWateredAt) return false;
+
+  const lastWateredDate = new Date(habit.lastWateredAt);
+  if (Number.isNaN(lastWateredDate.getTime())) return false;
+
+  const today = new Date();
+  return lastWateredDate.getFullYear() === today.getFullYear()
+    && lastWateredDate.getMonth() === today.getMonth()
+    && lastWateredDate.getDate() === today.getDate();
 }
 
 function getHabitStatusText(status) {

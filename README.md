@@ -1,10 +1,10 @@
 # Habit Garden
 
-Version: `v0.0`
+Version: `v0.1`
 
 Habit Garden is a small habit-tracking app where completing habits grows plants in a garden bed.
 
-You can add a habit, choose which plant it should grow, choose how often you want to water it, then press **Water** each time you complete that habit. Every watering counts as one completion. Plant choice controls the visual style:
+You can add a habit, choose which plant it should grow, choose how often you want to water it, then press **Water** when you complete that habit for the day. Each plant can only be watered once per local calendar day, so the same habit cannot be counted twice by accident. Plant choice controls the visual style:
 
 - Sprout
 - Daisy
@@ -24,7 +24,7 @@ Watering schedule controls how quickly the plant grows:
 - Every 5 or 7 days: grows every 2 waterings.
 - Every 14 days or monthly: grows every watering.
 
-The app shows your total waterings, how many plants have fully grown, each habit's current plant stage, the last time each plant was watered, and how many more waterings are needed before the next growth stage. You can reset a single plant back to a seed without clearing the whole garden.
+The app shows your total waterings, how many plants have fully grown, each habit's current plant stage, the last time each plant was watered, and how many more waterings are needed before the next growth stage. After a plant is watered, its water button changes to **Done today** until the next local day. You can reset a single plant back to a seed without clearing the whole garden.
 
 The garden bed has 10 plots for now. Planted habits appear in the bed, and empty plots stay ready for future habits. You can water a plant from the garden bed or from the habit detail card.
 
