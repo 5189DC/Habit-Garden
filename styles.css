@@ -425,7 +425,38 @@ button:focus-visible,
   align-items: start;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
+}
+
+.garden-tabs {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 16px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.garden-tab {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.garden-tab.is-active {
+  background: var(--ink);
+  color: var(--cream);
+  box-shadow: 0 8px 16px rgba(36, 48, 42, 0.12);
+}
+
+.tab-view[hidden] {
+  display: none;
 }
 
 .weather-actions {
@@ -453,6 +484,7 @@ button:focus-visible,
   border: 1px solid rgba(62, 47, 38, 0.2);
   border-radius: 8px;
   background:
+    var(--garden-weather-wash, linear-gradient(180deg, transparent, transparent)),
     radial-gradient(circle at 12% 20%, rgba(255, 250, 240, 0.34) 0 2px, transparent 3px),
     radial-gradient(circle at 78% 74%, rgba(255, 250, 240, 0.22) 0 2px, transparent 3px),
     radial-gradient(circle at 34% 88%, rgba(255, 250, 240, 0.2) 0 1px, transparent 2px),
@@ -484,22 +516,46 @@ button:focus-visible,
 }
 
 .garden-bed::before {
-  opacity: 0.3;
+  z-index: 2;
+  opacity: 0.64;
   background:
-    radial-gradient(circle at 82% 14%, rgba(255, 231, 142, 0.88) 0 6%, transparent 11%),
-    radial-gradient(ellipse at 24% 9%, rgba(255, 250, 240, 0.24) 0 14%, transparent 27%),
-    linear-gradient(180deg, rgba(203, 231, 236, 0.26), transparent 36%);
+    radial-gradient(circle at 86% 12%, rgba(255, 229, 110, 0.96) 0 7%, rgba(255, 202, 74, 0.24) 8% 15%, transparent 18%),
+    radial-gradient(ellipse at 24% 10%, rgba(255, 250, 240, 0.28) 0 12%, transparent 25%),
+    linear-gradient(180deg, rgba(184, 224, 236, 0.32), transparent 38%);
   animation: sun-breathe 5s ease-in-out infinite;
 }
 
 .garden-bed::after {
+  z-index: 5;
   opacity: 0;
 }
 
+body[data-weather="sunny"],
+body:not([data-weather]),
+body[data-weather="clear"] {
+  --garden-weather-wash: linear-gradient(180deg, rgba(214, 241, 236, 0.22), rgba(255, 235, 155, 0.12) 48%, transparent 74%);
+}
+
+body[data-weather="cloudy"] {
+  --garden-weather-wash: linear-gradient(180deg, rgba(200, 211, 205, 0.38), rgba(168, 180, 173, 0.16) 50%, transparent 78%);
+}
+
+body[data-weather="rainy"] {
+  --garden-weather-wash: linear-gradient(180deg, rgba(91, 122, 131, 0.42), rgba(73, 89, 86, 0.28) 56%, rgba(51, 71, 63, 0.16));
+}
+
+body[data-weather="snowy"] {
+  --garden-weather-wash: linear-gradient(180deg, rgba(230, 243, 247, 0.62), rgba(244, 248, 239, 0.2) 58%, transparent 82%);
+}
+
+body[data-weather="stormy"] {
+  --garden-weather-wash: linear-gradient(180deg, rgba(33, 45, 58, 0.56), rgba(52, 61, 58, 0.34) 58%, rgba(31, 36, 34, 0.24));
+}
+
 body[data-daylight="night"] .garden-bed::before {
-  opacity: 0.42;
+  opacity: 0.76;
   background:
-    radial-gradient(circle at 82% 14%, rgba(236, 239, 217, 0.88) 0 4%, transparent 8%),
+    radial-gradient(circle at 82% 14%, rgba(236, 239, 217, 0.9) 0 4%, rgba(236, 239, 217, 0.18) 5% 11%, transparent 13%),
     radial-gradient(circle at 18% 18%, rgba(255, 250, 240, 0.42) 0 1px, transparent 2px),
     radial-gradient(circle at 36% 9%, rgba(255, 250, 240, 0.36) 0 1px, transparent 2px),
     radial-gradient(circle at 66% 19%, rgba(255, 250, 240, 0.38) 0 1px, transparent 2px),
@@ -507,60 +563,79 @@ body[data-daylight="night"] .garden-bed::before {
 }
 
 body[data-weather="cloudy"] .garden-bed::before {
-  opacity: 0.5;
+  opacity: 0.78;
   background:
-    radial-gradient(ellipse at 20% 9%, rgba(255, 250, 240, 0.44) 0 13%, transparent 25%),
-    radial-gradient(ellipse at 48% 12%, rgba(229, 231, 219, 0.5) 0 16%, transparent 30%),
-    radial-gradient(ellipse at 82% 8%, rgba(255, 250, 240, 0.42) 0 15%, transparent 27%),
-    linear-gradient(180deg, rgba(202, 213, 204, 0.36), transparent 38%);
+    radial-gradient(ellipse at 14% 10%, rgba(255, 250, 240, 0.7) 0 12%, transparent 24%),
+    radial-gradient(ellipse at 43% 8%, rgba(218, 224, 214, 0.76) 0 18%, transparent 32%),
+    radial-gradient(ellipse at 80% 12%, rgba(239, 239, 228, 0.74) 0 16%, transparent 29%),
+    linear-gradient(180deg, rgba(171, 184, 177, 0.44), transparent 46%);
   background-size: 120% 100%;
   animation: clouds-drift 18s linear infinite;
 }
 
 body[data-weather="rainy"] .garden-bed::before,
 body[data-weather="stormy"] .garden-bed::before {
-  opacity: 0.52;
+  opacity: 0.86;
   background:
-    radial-gradient(ellipse at 22% 10%, rgba(198, 207, 199, 0.5) 0 16%, transparent 29%),
-    radial-gradient(ellipse at 58% 7%, rgba(170, 184, 183, 0.48) 0 18%, transparent 31%),
-    linear-gradient(180deg, rgba(91, 122, 131, 0.35), transparent 42%);
+    radial-gradient(ellipse at 18% 10%, rgba(190, 203, 199, 0.72) 0 17%, transparent 31%),
+    radial-gradient(ellipse at 56% 7%, rgba(128, 150, 153, 0.68) 0 21%, transparent 35%),
+    radial-gradient(ellipse at 88% 13%, rgba(174, 187, 183, 0.58) 0 15%, transparent 29%),
+    linear-gradient(180deg, rgba(67, 93, 104, 0.42), transparent 48%);
   background-size: 130% 100%;
   animation: clouds-drift 14s linear infinite;
 }
 
 body[data-weather="rainy"] .garden-bed::after,
 body[data-weather="stormy"] .garden-bed::after {
-  opacity: 0.34;
+  opacity: 0.72;
   background:
     repeating-linear-gradient(
       108deg,
-      transparent 0 13px,
-      rgba(203, 231, 236, 0.84) 14px 16px,
-      transparent 17px 31px
+      transparent 0 10px,
+      rgba(220, 246, 255, 0.76) 11px 13px,
+      rgba(136, 176, 188, 0.28) 14px 15px,
+      transparent 16px 26px
     );
-  background-size: 140px 140px;
-  animation: rain-fall 620ms linear infinite;
+  background-size: 104px 104px;
+  animation: rain-fall 480ms linear infinite;
 }
 
 body[data-weather="snowy"] .garden-bed::before {
-  opacity: 0.52;
+  opacity: 0.8;
   background:
-    radial-gradient(ellipse at 34% 10%, rgba(255, 250, 240, 0.58) 0 20%, transparent 33%),
-    linear-gradient(180deg, rgba(226, 238, 241, 0.44), transparent 44%);
+    radial-gradient(ellipse at 34% 10%, rgba(255, 250, 240, 0.76) 0 20%, transparent 34%),
+    radial-gradient(ellipse at 74% 11%, rgba(226, 238, 241, 0.56) 0 15%, transparent 28%),
+    linear-gradient(180deg, rgba(226, 238, 241, 0.58), transparent 48%);
 }
 
 body[data-weather="snowy"] .garden-bed::after {
-  opacity: 0.58;
+  opacity: 0.86;
   background:
-    radial-gradient(circle, rgba(255, 250, 240, 0.94) 0 2px, transparent 3px),
-    radial-gradient(circle, rgba(255, 250, 240, 0.72) 0 1px, transparent 2px);
-  background-position: 0 0, 34px 42px;
-  background-size: 82px 82px, 64px 64px;
-  animation: snow-fall 8s linear infinite;
+    radial-gradient(circle, rgba(255, 250, 240, 0.96) 0 2px, transparent 3px),
+    radial-gradient(circle, rgba(255, 250, 240, 0.8) 0 1px, transparent 2px),
+    radial-gradient(circle, rgba(209, 229, 234, 0.72) 0 2px, transparent 3px);
+  background-position: 0 0, 34px 42px, 17px 18px;
+  background-size: 82px 82px, 64px 64px, 116px 116px;
+  animation: snow-fall 7s linear infinite;
 }
 
 body[data-weather="stormy"] .garden-bed {
   animation: storm-flash 5.5s steps(1, end) infinite;
+}
+
+body[data-weather="stormy"] .garden-bed::after {
+  opacity: 0.78;
+  background:
+    linear-gradient(118deg, transparent 0 53%, rgba(255, 250, 190, 0.72) 53.3% 54.2%, transparent 54.5%),
+    repeating-linear-gradient(
+      108deg,
+      transparent 0 10px,
+      rgba(220, 246, 255, 0.74) 11px 13px,
+      rgba(136, 176, 188, 0.34) 14px 15px,
+      transparent 16px 26px
+    );
+  background-size: 100% 100%, 98px 98px;
+  animation: lightning-strike 5.5s steps(1, end) infinite, rain-fall 420ms linear infinite;
 }
 
 .garden-plot {
@@ -573,7 +648,7 @@ body[data-weather="stormy"] .garden-bed {
     radial-gradient(ellipse at 50% 72%, rgba(255, 250, 240, 0.06), transparent 58%);
   animation: plot-rise 420ms ease both;
   animation-delay: var(--plot-delay);
-  z-index: 1;
+  z-index: 3;
   transform: translateY(calc(var(--plot-depth) * 10px)) scale(calc(0.93 + var(--plot-depth) * 0.07));
   box-shadow:
     0 calc(7px + var(--plot-depth) * 5px) 12px rgba(25, 17, 13, 0.08);
@@ -839,6 +914,157 @@ body[data-weather="stormy"] .garden-bed {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 14px;
+}
+
+.calendar-toolbar {
+  display: grid;
+  grid-template-columns: 42px minmax(130px, 1fr) minmax(98px, 0.8fr) 42px;
+  gap: 10px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.calendar-toolbar label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.calendar-toolbar select {
+  min-height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 850;
+}
+
+.calendar-nav {
+  min-width: 42px;
+  padding: 0;
+  font-size: 1.35rem;
+}
+
+.calendar-summary {
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendar-weekdays {
+  margin-bottom: 8px;
+}
+
+.calendar-weekdays span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.calendar-day {
+  min-height: 132px;
+  padding: 9px;
+  border: 1px solid rgba(36, 48, 42, 0.12);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 250, 240, 0.58)),
+    rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+
+.calendar-day.is-empty {
+  visibility: hidden;
+}
+
+.calendar-day.is-today {
+  border-color: rgba(77, 130, 168, 0.52);
+  box-shadow:
+    inset 0 0 0 2px rgba(77, 130, 168, 0.16),
+    0 8px 16px rgba(55, 68, 52, 0.08);
+}
+
+.calendar-day.has-events {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 240, 0.86), rgba(223, 232, 199, 0.46)),
+    rgba(255, 255, 255, 0.72);
+}
+
+.calendar-date {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.calendar-date strong {
+  font-size: 1rem;
+}
+
+.calendar-date span {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.calendar-events {
+  display: grid;
+  gap: 6px;
+}
+
+.calendar-event {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  min-height: 34px;
+  padding: 4px;
+  border: 1px solid rgba(36, 48, 42, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+}
+
+.calendar-event.watered {
+  border-color: rgba(77, 130, 168, 0.24);
+  background: rgba(224, 242, 246, 0.72);
+}
+
+.calendar-event.started {
+  border-color: rgba(47, 125, 76, 0.22);
+  background: rgba(229, 239, 211, 0.76);
+}
+
+.calendar-event img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.calendar-event strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-event strong {
+  color: var(--ink);
+  font-size: 0.72rem;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .empty-garden {
@@ -1564,6 +1790,21 @@ body[data-weather="stormy"] .garden-bed {
   }
 }
 
+@keyframes lightning-strike {
+  0%,
+  81%,
+  86%,
+  100% {
+    opacity: 0.78;
+  }
+  82% {
+    opacity: 0.98;
+  }
+  84% {
+    opacity: 0.7;
+  }
+}
+
 @media (max-width: 820px) {
   .app-shell {
     width: min(100% - 20px, 680px);
@@ -1600,6 +1841,69 @@ body[data-weather="stormy"] .garden-bed {
     grid-template-columns: repeat(2, minmax(128px, 1fr));
     min-height: auto;
     padding: 12px;
+  }
+
+  .garden-tabs {
+    display: grid;
+  }
+
+  .calendar-toolbar {
+    grid-template-columns: 42px 1fr 42px;
+  }
+
+  #previousMonth {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #nextMonth {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  .calendar-toolbar label:first-of-type {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .calendar-toolbar label:last-of-type {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .calendar-weekdays,
+  .calendar-grid {
+    gap: 5px;
+  }
+
+  .calendar-day {
+    min-height: 104px;
+    padding: 6px;
+  }
+
+  .calendar-date {
+    display: grid;
+    gap: 2px;
+  }
+
+  .calendar-date span {
+    white-space: normal;
+  }
+
+  .calendar-event {
+    grid-template-columns: 18px minmax(0, 1fr);
+    gap: 4px;
+    min-height: 30px;
+    padding: 3px;
+  }
+
+  .calendar-event img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .calendar-event strong {
+    font-size: 0.64rem;
   }
 
   .garden-plot {

@@ -1,6 +1,6 @@
 # Habit Garden
 
-Version: `v0.1.2`
+Version: `v0.1.3`
 
 Habit Garden is a small habit-tracking app where completing habits grows plants in a garden bed.
 
@@ -28,7 +28,9 @@ The app shows your total waterings, how many plants have fully grown, each habit
 
 The garden bed has 10 plots for now. Planted habits appear in the bed, and empty plots stay ready for future habits. You can water a plant from the garden bed or from the habit detail card.
 
-The garden uses staged hand-drawn plant sprites, staggered plots, soil texture, dry/freshly-watered states, and small watering effects so plants feel more alive as habits progress. The plant artwork is stored in `assets/plants/`, with five growth-stage images for each plant.
+The garden panel has two tabs: **Your garden** and **Calendar**. The calendar lets you choose a year and month, then shows plant icons with habit names on days when a habit was started or watered. New waterings are saved into a watering history so the calendar can show them going forward.
+
+The garden uses staged hand-drawn plant sprites, staggered plots, soil texture, dry/freshly-watered states, stronger weather overlays, and small watering effects so plants feel more alive as habits progress. The plant artwork is stored in `assets/plants/`, with five growth-stage images for each plant.
 
 The app can animate the garden sky from local weather using Open-Meteo current conditions. Use **Use my location** to let the browser share your location for the weather animation. If location is unavailable, the app falls back to a default garden sky. Your garden is saved in the browser with `localStorage`.
 

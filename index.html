@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Habit Garden</title>
-    <link rel="stylesheet" href="styles.css?v=0.1.2" />
+    <link rel="stylesheet" href="styles.css?v=0.1.3" />
   </head>
   <body>
     <main class="app-shell">
@@ -65,12 +65,50 @@
               <p id="gardenSubtitle">Each completion waters a plant once.</p>
             </div>
           </div>
-          <div class="weather-actions">
-            <span id="weatherStatus" aria-live="polite">Garden sky is syncing...</span>
-            <button class="ghost-action" id="useLocation" type="button">Use my location</button>
+
+          <div class="garden-tabs" role="tablist" aria-label="Garden views">
+            <button class="garden-tab is-active" id="gardenTab" type="button" role="tab" aria-selected="true" aria-controls="gardenView" data-view="garden">
+              Your garden
+            </button>
+            <button class="garden-tab" id="calendarTab" type="button" role="tab" aria-selected="false" aria-controls="calendarView" data-view="calendar">
+              Calendar
+            </button>
           </div>
-          <div class="garden-bed" id="gardenBed" aria-label="Garden bed with 10 plant plots"></div>
-          <div class="garden-grid" id="gardenGrid" aria-label="Habit details"></div>
+
+          <div class="tab-view is-active" id="gardenView" role="tabpanel" aria-labelledby="gardenTab">
+            <div class="weather-actions">
+              <span id="weatherStatus" aria-live="polite">Garden sky is syncing...</span>
+              <button class="ghost-action" id="useLocation" type="button">Use my location</button>
+            </div>
+            <div class="garden-bed" id="gardenBed" aria-label="Garden bed with 10 plant plots"></div>
+            <div class="garden-grid" id="gardenGrid" aria-label="Habit details"></div>
+          </div>
+
+          <div class="tab-view" id="calendarView" role="tabpanel" aria-labelledby="calendarTab" hidden>
+            <div class="calendar-toolbar">
+              <button class="ghost-action calendar-nav" id="previousMonth" type="button" aria-label="Previous month">&lsaquo;</button>
+              <label>
+                Month
+                <select id="calendarMonth"></select>
+              </label>
+              <label>
+                Year
+                <select id="calendarYear"></select>
+              </label>
+              <button class="ghost-action calendar-nav" id="nextMonth" type="button" aria-label="Next month">&rsaquo;</button>
+            </div>
+            <div class="calendar-summary" id="calendarSummary"></div>
+            <div class="calendar-weekdays" aria-hidden="true">
+              <span>Sun</span>
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+              <span>Sat</span>
+            </div>
+            <div class="calendar-grid" id="calendarGrid" aria-label="Habit calendar"></div>
+          </div>
         </section>
       </section>
     </main>
@@ -99,6 +137,6 @@
       </article>
     </template>
 
-    <script src="app.js?v=0.1.2"></script>
+    <script src="app.js?v=0.1.3"></script>
   </body>
 </html>

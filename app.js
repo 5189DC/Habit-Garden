@@ -86,6 +86,9 @@ const fallbackLocation = {
 const defaultState = {
   selectedPlantId: plants[0].id,
   selectedScheduleId: schedules[0].id,
+  selectedView: "garden",
+  calendarYear: new Date().getFullYear(),
+  calendarMonth: new Date().getMonth(),
   habits: [],
 };
 
@@ -103,10 +106,22 @@ const gardenSubtitle = document.querySelector("#gardenSubtitle");
 const habitCardTemplate = document.querySelector("#habitCardTemplate");
 const useLocation = document.querySelector("#useLocation");
 const weatherStatus = document.querySelector("#weatherStatus");
+const gardenTabs = document.querySelectorAll(".garden-tab");
+const gardenView = document.querySelector("#gardenView");
+const calendarView = document.querySelector("#calendarView");
+const calendarMonth = document.querySelector("#calendarMonth");
+const calendarYear = document.querySelector("#calendarYear");
+const calendarGrid = document.querySelector("#calendarGrid");
+const calendarSummary = document.querySelector("#calendarSummary");
+const previousMonth = document.querySelector("#previousMonth");
+const nextMonth = document.querySelector("#nextMonth");
 
 renderPlantPicker();
 renderSchedulePicker();
+renderCalendarControls();
+renderActiveView();
 renderGarden();
+renderCalendar();
 loadWeather();
 
 habitForm.addEventListener("submit", (event) => {
@@ -128,15 +143,46 @@ habitForm.addEventListener("submit", (event) => {
     createdAt: new Date().toISOString(),
     lastWateredAt: null,
     lastWateredDay: null,
+    waterLog: [],
   });
 
   habitName.value = "";
   saveState();
   renderGarden();
+  renderCalendarControls();
+  renderCalendar();
 });
 
 useLocation.addEventListener("click", () => {
   loadWeather({ requestLocation: true });
+});
+
+gardenTabs.forEach((tab) => {
+  tab.addEventListener("click", () => {
+    state.selectedView = tab.dataset.view;
+    saveState();
+    renderActiveView();
+  });
+});
+
+calendarMonth.addEventListener("change", () => {
+  state.calendarMonth = Number(calendarMonth.value);
+  saveState();
+  renderCalendar();
+});
+
+calendarYear.addEventListener("change", () => {
+  state.calendarYear = Number(calendarYear.value);
+  saveState();
+  renderCalendar();
+});
+
+previousMonth.addEventListener("click", () => {
+  moveCalendarMonth(-1);
+});
+
+nextMonth.addEventListener("click", () => {
+  moveCalendarMonth(1);
 });
 
 function renderPlantPicker() {
@@ -274,6 +320,203 @@ function renderGarden() {
   });
 }
 
+function renderActiveView() {
+  const selectedView = state.selectedView === "calendar" ? "calendar" : "garden";
+
+  gardenTabs.forEach((tab) => {
+    const isSelected = tab.dataset.view === selectedView;
+    tab.classList.toggle("is-active", isSelected);
+    tab.setAttribute("aria-selected", String(isSelected));
+  });
+
+  gardenView.hidden = selectedView !== "garden";
+  gardenView.classList.toggle("is-active", selectedView === "garden");
+  calendarView.hidden = selectedView !== "calendar";
+  calendarView.classList.toggle("is-active", selectedView === "calendar");
+
+  if (selectedView === "calendar") {
+    renderCalendar();
+  }
+}
+
+function renderCalendarControls() {
+  const monthNames = getMonthNames();
+  calendarMonth.innerHTML = monthNames
+    .map((month, index) => `<option value="${index}">${month}</option>`)
+    .join("");
+
+  const currentYear = new Date().getFullYear();
+  const habitYears = state.habits
+    .map((habit) => new Date(habit.createdAt).getFullYear())
+    .filter((year) => !Number.isNaN(year));
+  const firstYear = Math.min(currentYear - 1, state.calendarYear, ...habitYears);
+  const lastYear = Math.max(currentYear + 2, state.calendarYear, ...habitYears);
+
+  calendarYear.innerHTML = "";
+  for (let year = firstYear; year <= lastYear; year += 1) {
+    const option = document.createElement("option");
+    option.value = String(year);
+    option.textContent = String(year);
+    calendarYear.append(option);
+  }
+}
+
+function renderCalendar() {
+  calendarMonth.value = String(state.calendarMonth);
+  calendarYear.value = String(state.calendarYear);
+  calendarGrid.innerHTML = "";
+
+  const year = state.calendarYear;
+  const month = state.calendarMonth;
+  const monthNames = getMonthNames();
+  const eventsByDay = getCalendarEvents(year, month);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalEvents = [...eventsByDay.values()].reduce((sum, events) => sum + events.length, 0);
+
+  calendarSummary.textContent = totalEvents
+    ? `${totalEvents} garden event${totalEvents === 1 ? "" : "s"} in ${monthNames[month]} ${year}.`
+    : `No garden events in ${monthNames[month]} ${year}.`;
+
+  for (let index = 0; index < firstDay; index += 1) {
+    const blank = document.createElement("div");
+    blank.className = "calendar-day is-empty";
+    calendarGrid.append(blank);
+  }
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const dayKey = getLocalDateKey(new Date(year, month, day));
+    const events = eventsByDay.get(dayKey) || [];
+    const dayCell = document.createElement("article");
+    dayCell.className = "calendar-day";
+    if (dayKey === getLocalDateKey()) dayCell.classList.add("is-today");
+    if (events.length) dayCell.classList.add("has-events");
+
+    dayCell.innerHTML = `
+      <div class="calendar-date">
+        <strong>${day}</strong>
+        <span>${events.length ? `${events.length} event${events.length === 1 ? "" : "s"}` : ""}</span>
+      </div>
+      <div class="calendar-events">
+        ${events.map(createCalendarEventMarkup).join("")}
+      </div>
+    `;
+    calendarGrid.append(dayCell);
+  }
+}
+
+function moveCalendarMonth(direction) {
+  const date = new Date(state.calendarYear, state.calendarMonth + direction, 1);
+  state.calendarYear = date.getFullYear();
+  state.calendarMonth = date.getMonth();
+  renderCalendarControls();
+  saveState();
+  renderCalendar();
+}
+
+function getCalendarEvents(year, month) {
+  const eventsByDay = new Map();
+
+  state.habits.forEach((habit) => {
+    const plant = getPlant(habit.plantId);
+    const createdAt = new Date(habit.createdAt);
+    if (!Number.isNaN(createdAt.getTime())) {
+      const createdDay = getLocalDateKey(createdAt);
+      addCalendarEvent(eventsByDay, createdDay, {
+        type: "started",
+        habitName: habit.name,
+        plant,
+        time: createdAt,
+      });
+    }
+
+    getHabitWaterLog(habit).forEach((entry) => {
+      const wateredAt = new Date(entry.at || entry.day);
+      const wateredDay = entry.day || (
+        Number.isNaN(wateredAt.getTime()) ? null : getLocalDateKey(wateredAt)
+      );
+      if (!wateredDay) return;
+
+      addCalendarEvent(eventsByDay, wateredDay, {
+        type: "watered",
+        habitName: habit.name,
+        plant,
+        time: wateredAt,
+      });
+    });
+  });
+
+  [...eventsByDay.keys()].forEach((dayKey) => {
+    const date = parseDateKey(dayKey);
+    if (!date || date.getFullYear() !== year || date.getMonth() !== month) {
+      eventsByDay.delete(dayKey);
+      return;
+    }
+
+    eventsByDay.get(dayKey).sort((first, second) => {
+      const firstTime = Number.isNaN(first.time?.getTime?.()) ? 0 : first.time.getTime();
+      const secondTime = Number.isNaN(second.time?.getTime?.()) ? 0 : second.time.getTime();
+      return firstTime - secondTime;
+    });
+  });
+
+  return eventsByDay;
+}
+
+function addCalendarEvent(eventsByDay, dayKey, event) {
+  if (!eventsByDay.has(dayKey)) {
+    eventsByDay.set(dayKey, []);
+  }
+  eventsByDay.get(dayKey).push(event);
+}
+
+function createCalendarEventMarkup(event) {
+  const action = event.type === "started" ? "Started" : "Watered";
+  const title = `${action} ${event.habitName} with ${event.plant.name}`;
+  return `
+    <div class="calendar-event ${event.type}" title="${escapeHtml(title)}">
+      <img src="${getPlantSprite(event.plant, event.plant.stages - 1)}" alt="" loading="lazy">
+      <span>
+        <strong>${escapeHtml(event.habitName)}</strong>
+      </span>
+    </div>
+  `;
+}
+
+function getHabitWaterLog(habit) {
+  if (Array.isArray(habit.waterLog) && habit.waterLog.length) {
+    return habit.waterLog;
+  }
+
+  if (!habit.lastWateredAt) return [];
+
+  const lastWateredDate = new Date(habit.lastWateredAt);
+  if (Number.isNaN(lastWateredDate.getTime())) return [];
+
+  return [{
+    at: habit.lastWateredAt,
+    day: habit.lastWateredDay || getLocalDateKey(lastWateredDate),
+    waterings: habit.waterings,
+  }];
+}
+
+function getMonthNames() {
+  return [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+}
+
 function createGardenPlot(habit, index) {
   const plot = document.createElement("article");
   plot.className = "garden-plot";
@@ -335,8 +578,17 @@ function waterHabit(habit) {
   habit.waterings += 1;
   habit.lastWateredAt = wateredAt.toISOString();
   habit.lastWateredDay = getLocalDateKey(wateredAt);
+  habit.waterLog = [
+    ...getHabitWaterLog(habit),
+    {
+      at: habit.lastWateredAt,
+      day: habit.lastWateredDay,
+      waterings: habit.waterings,
+    },
+  ];
   saveState();
   renderGarden();
+  renderCalendar();
 }
 
 function resetHabitPlant(habit) {
@@ -346,8 +598,10 @@ function resetHabitPlant(habit) {
   habit.waterings = 0;
   habit.lastWateredAt = null;
   habit.lastWateredDay = null;
+  habit.waterLog = [];
   saveState();
   renderGarden();
+  renderCalendar();
 }
 
 function removeHabitPlant(habit) {
@@ -357,6 +611,8 @@ function removeHabitPlant(habit) {
   state.habits = state.habits.filter((existingHabit) => existingHabit.id !== habit.id);
   saveState();
   renderGarden();
+  renderCalendarControls();
+  renderCalendar();
 }
 
 function createPlantMarkup(plant, stage, scale = "card") {
@@ -427,6 +683,15 @@ function getLocalDateKey(date = new Date()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function parseDateKey(dateKey) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateKey || "");
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function getHabitStatusText(status) {
@@ -605,6 +870,15 @@ function loadState() {
     if (!schedules.some((schedule) => schedule.id === nextState.selectedScheduleId)) {
       nextState.selectedScheduleId = schedules[0].id;
     }
+    if (!["garden", "calendar"].includes(nextState.selectedView)) {
+      nextState.selectedView = "garden";
+    }
+    if (!Number.isInteger(nextState.calendarYear)) {
+      nextState.calendarYear = defaultState.calendarYear;
+    }
+    if (!Number.isInteger(nextState.calendarMonth) || nextState.calendarMonth < 0 || nextState.calendarMonth > 11) {
+      nextState.calendarMonth = defaultState.calendarMonth;
+    }
     nextState.habits = nextState.habits.map((habit) => ({
       ...habit,
       plantId: getMigratedPlantId(habit.plantId),
@@ -612,6 +886,7 @@ function loadState() {
         ? habit.scheduleId
         : getInferredScheduleId(habit),
       lastWateredDay: getHabitWateredDay(habit),
+      waterLog: getHabitWaterLog(habit),
     }));
     return nextState;
   } catch {
