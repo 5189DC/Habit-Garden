@@ -1,6 +1,6 @@
 # Habit Garden
 
-Version: `v0.2`
+Version: `v0.2.1`
 
 Open the app: [https://5189dc.github.io/Habit-Garden/](https://5189dc.github.io/Habit-Garden/)
 
@@ -40,7 +40,7 @@ The garden uses staged hand-drawn plant sprites, staggered plots, soil texture, 
 
 The app can animate the garden sky from local weather using Open-Meteo current conditions. Use **Use my location** to let the browser share your location for the weather animation. If location is unavailable, the app falls back to a default garden sky. Your garden is saved in the browser with `localStorage`.
 
-You can export your garden data to a JSON file and import it later on the same or another device. Version `v0.2` also includes a web app manifest, icon, and service worker so the app can be added to an iPhone Home Screen and cached for a more app-like experience.
+You can export your garden data to a JSON file and import it later on the same or another device. Version `v0.2.1` also includes a web app manifest, icon, and service worker so the app can be added to an iPhone Home Screen and cached for a more app-like experience.
 
 The local development version includes a **Test watering** checkbox for quickly checking plant growth. That test control is hidden and forced off on the published GitHub Pages app, so friends using the public link get the normal once-per-day habit flow.
 
