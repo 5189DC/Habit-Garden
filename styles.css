@@ -1828,7 +1828,12 @@ body[data-weather="stormy"] .garden-bed::after {
     grid-template-columns: 1fr;
   }
 
+  .garden-panel {
+    order: 1;
+  }
+
   .habit-form {
+    order: 2;
     position: static;
   }
 
