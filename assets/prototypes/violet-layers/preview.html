@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Violet Layer Motion Prototype</title>
+    <style>
+      :root {
+        color: #223029;
+        background: #f8f4e9;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 28px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(28px, 4vw, 48px);
+        line-height: 1;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #617169;
+        font-weight: 700;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(150px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        background: linear-gradient(#eaf7f4, #fbfbea);
+        border: 1px solid #d6d2c6;
+        border-radius: 8px;
+        overflow: visible;
+      }
+
+      .label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px 0;
+        color: #617169;
+        font-weight: 800;
+      }
+
+      .plant-frame {
+        position: relative;
+        width: min(100%, 240px);
+        aspect-ratio: 4 / 3;
+        margin: 8px auto 2px;
+        overflow: visible;
+      }
+
+      .plant-frame img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transform-box: fill-box;
+        pointer-events: none;
+      }
+
+      .soil {
+        z-index: 1;
+      }
+
+      .foliage {
+        z-index: 2;
+      }
+
+      .flower {
+        animation: violet-blossom 3s ease-in-out infinite;
+        transform-origin: 50% 86%;
+      }
+
+      .flower-a {
+        z-index: 3;
+        animation-duration: 3.2s;
+        transform-origin: 42% 88%;
+      }
+
+      .flower-b {
+        z-index: 4;
+        animation-duration: 3.05s;
+        transform-origin: 47% 88%;
+      }
+
+      .flower-c {
+        z-index: 5;
+        animation-duration: 2.9s;
+        transform-origin: 50% 88%;
+      }
+
+      .flower-d {
+        z-index: 6;
+        animation-duration: 3.15s;
+        transform-origin: 54% 88%;
+      }
+
+      .flower-e {
+        z-index: 7;
+        animation-duration: 3.35s;
+        transform-origin: 58% 88%;
+      }
+
+      .stage-1 .flower {
+        animation: none;
+      }
+
+      @keyframes violet-blossom {
+        0%, 100% {
+          transform: rotate(-1.05deg) translateX(-0.35px);
+        }
+        50% {
+          transform: rotate(1.15deg) translateX(0.35px);
+        }
+      }
+
+      @media (max-width: 760px) {
+        body {
+          padding: 18px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Violet motion prototype</h1>
+    <p>The whole leaf mound stays fixed; separate violet blossoms sway gently.</p>
+    <main class="grid">
+      <section class="card">
+        <div class="label"><span>Stage 1</span><span>sprout</span></div>
+        <div class="plant-frame stage-1">
+          <img class="soil" src="violet-stage-1-soil-v2.png" alt="">
+          <img class="foliage" src="violet-stage-1-foliage-v2.png" alt="">
+          <img class="flower flower-a" src="violet-stage-1-flower-a-v2.png" alt="">
+          <img class="flower flower-b" src="violet-stage-1-flower-b-v2.png" alt="">
+          <img class="flower flower-c" src="violet-stage-1-flower-c-v2.png" alt="">
+          <img class="flower flower-d" src="violet-stage-1-flower-d-v2.png" alt="">
+          <img class="flower flower-e" src="violet-stage-1-flower-e-v2.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 2</span><span>first bloom</span></div>
+        <div class="plant-frame stage-2">
+          <img class="soil" src="violet-stage-2-soil-v2.png" alt="">
+          <img class="foliage" src="violet-stage-2-foliage-v2.png" alt="">
+          <img class="flower flower-a" src="violet-stage-2-flower-a-v2.png" alt="">
+          <img class="flower flower-b" src="violet-stage-2-flower-b-v2.png" alt="">
+          <img class="flower flower-c" src="violet-stage-2-flower-c-v2.png" alt="">
+          <img class="flower flower-d" src="violet-stage-2-flower-d-v2.png" alt="">
+          <img class="flower flower-e" src="violet-stage-2-flower-e-v2.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 3</span><span>pair</span></div>
+        <div class="plant-frame stage-3">
+          <img class="soil" src="violet-stage-3-soil-v2.png" alt="">
+          <img class="foliage" src="violet-stage-3-foliage-v2.png" alt="">
+          <img class="flower flower-a" src="violet-stage-3-flower-a-v2.png" alt="">
+          <img class="flower flower-b" src="violet-stage-3-flower-b-v2.png" alt="">
+          <img class="flower flower-c" src="violet-stage-3-flower-c-v2.png" alt="">
+          <img class="flower flower-d" src="violet-stage-3-flower-d-v2.png" alt="">
+          <img class="flower flower-e" src="violet-stage-3-flower-e-v2.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 4</span><span>cluster</span></div>
+        <div class="plant-frame stage-4">
+          <img class="soil" src="violet-stage-4-soil-v2.png" alt="">
+          <img class="foliage" src="violet-stage-4-foliage-v2.png" alt="">
+          <img class="flower flower-a" src="violet-stage-4-flower-a-v2.png" alt="">
+          <img class="flower flower-b" src="violet-stage-4-flower-b-v2.png" alt="">
+          <img class="flower flower-c" src="violet-stage-4-flower-c-v2.png" alt="">
+          <img class="flower flower-d" src="violet-stage-4-flower-d-v2.png" alt="">
+          <img class="flower flower-e" src="violet-stage-4-flower-e-v2.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 5</span><span>full</span></div>
+        <div class="plant-frame stage-5">
+          <img class="soil" src="violet-stage-5-soil-v2.png" alt="">
+          <img class="foliage" src="violet-stage-5-foliage-v2.png" alt="">
+          <img class="flower flower-a" src="violet-stage-5-flower-a-v2.png" alt="">
+          <img class="flower flower-b" src="violet-stage-5-flower-b-v2.png" alt="">
+          <img class="flower flower-c" src="violet-stage-5-flower-c-v2.png" alt="">
+          <img class="flower flower-d" src="violet-stage-5-flower-d-v2.png" alt="">
+          <img class="flower flower-e" src="violet-stage-5-flower-e-v2.png" alt="">
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

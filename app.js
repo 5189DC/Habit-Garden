@@ -51,6 +51,64 @@ const plants = [
   },
 ];
 
+const plantLayerAssets = {
+  sprout: (stage) => [
+    { file: `sprout-stage-${stage}-soil.png`, className: "plant-layer-fixed" },
+    { file: `sprout-stage-${stage}-leaves-moving.png`, className: "plant-layer-moving plant-layer-soft" },
+    { file: `sprout-stage-${stage}-base-overlay.png`, className: "plant-layer-fixed plant-layer-overlay" },
+  ],
+  daisy: (stage) => [
+    { file: `daisy-stage-${stage}-soil.png`, className: "plant-layer-fixed" },
+    { file: `daisy-stage-${stage}-foliage.png`, className: "plant-layer-moving plant-layer-soft" },
+    { file: `daisy-stage-${stage}-stems.png`, className: "plant-layer-moving plant-layer-stem" },
+    { file: `daisy-stage-${stage}-flower-heads.png`, className: "plant-layer-moving plant-layer-flower" },
+  ],
+  fern: (stage) => [
+    { file: `fern-stage-${stage}-soil-v2.png`, className: "plant-layer-fixed" },
+    { file: `fern-stage-${stage}-fronds-v2.png`, className: "plant-layer-moving plant-layer-frond" },
+    { file: `fern-stage-${stage}-crown-v2.png`, className: "plant-layer-fixed plant-layer-overlay" },
+  ],
+  violet: (stage) => [
+    { file: `violet-stage-${stage}-soil-v2.png`, className: "plant-layer-fixed" },
+    { file: `violet-stage-${stage}-foliage-v2.png`, className: "plant-layer-moving plant-layer-soft" },
+    { file: `violet-stage-${stage}-flowers-v2.png`, className: "plant-layer-moving plant-layer-flower" },
+  ],
+  cactus: (stage) => [
+    { file: `cactus-stage-${stage}-soil.png`, className: "plant-layer-fixed" },
+    { file: `cactus-stage-${stage}-body.png`, className: "plant-layer-fixed plant-layer-overlay" },
+    { file: `cactus-stage-${stage}-flowers.png`, className: "plant-layer-moving plant-layer-flower" },
+  ],
+  sunflower: (stage) => [
+    { file: `sunflower-stage-${stage}-soil-distinct.png`, className: "plant-layer-fixed" },
+    { file: `sunflower-stage-${stage}-stem-leaves-distinct.png`, className: "plant-layer-moving plant-layer-soft" },
+    { file: `sunflower-stage-${stage}-flower-head-distinct.png`, className: "plant-layer-moving plant-layer-flower" },
+  ],
+  bonsai: (stage) => [
+    { file: `bonsai-stage-${stage}-pot-trunk-distinct.png`, className: "plant-layer-fixed" },
+    { file: `bonsai-stage-${stage}-canopy-distinct.png`, className: "plant-layer-moving plant-layer-canopy" },
+  ],
+  orchid: (stage) => [
+    { file: `orchid-stage-${stage}-soil.png`, className: "plant-layer-fixed" },
+    { file: `orchid-stage-${stage}-base.png`, className: "plant-layer-fixed plant-layer-overlay" },
+    { file: `orchid-stage-${stage}-arch.png`, className: "plant-layer-moving plant-layer-flower" },
+  ],
+  lavender: (stage) => [
+    { file: `lavender-stage-${stage}-soil.png`, className: "plant-layer-fixed" },
+    { file: `lavender-stage-${stage}-base.png`, className: "plant-layer-fixed plant-layer-overlay" },
+    { file: `lavender-stage-${stage}-spike-a.png`, className: "plant-layer-moving plant-layer-spike plant-layer-a" },
+    { file: `lavender-stage-${stage}-spike-b.png`, className: "plant-layer-moving plant-layer-spike plant-layer-b" },
+    { file: `lavender-stage-${stage}-spike-c.png`, className: "plant-layer-moving plant-layer-spike plant-layer-c" },
+    { file: `lavender-stage-${stage}-spike-d.png`, className: "plant-layer-moving plant-layer-spike plant-layer-d" },
+    { file: `lavender-stage-${stage}-spike-e.png`, className: "plant-layer-moving plant-layer-spike plant-layer-e" },
+  ],
+  sakura: (stage) => [
+    { file: `sakura-stage-${stage}-trunk-fixed.png`, className: "plant-layer-fixed" },
+    { file: `sakura-stage-${stage}-blossom-left.png`, className: "plant-layer-moving plant-layer-blossom plant-layer-a" },
+    { file: `sakura-stage-${stage}-blossom-center.png`, className: "plant-layer-moving plant-layer-blossom plant-layer-b" },
+    { file: `sakura-stage-${stage}-blossom-right.png`, className: "plant-layer-moving plant-layer-blossom plant-layer-c" },
+  ],
+};
+
 const legacyPlantIds = {
   "one-day": "sprout",
   "two-day": "daisy",
@@ -90,7 +148,7 @@ const rewards = [
 
 const storageKey = "habit-garden-state-v1";
 const locationStorageKey = "habit-garden-weather-location-v1";
-const plantAssetVersion = "2026-06-15-5";
+const plantAssetVersion = "2026-06-16-layered-2";
 const maxGardenPlants = 10;
 const fallbackLocation = {
   latitude: 51.5072,
@@ -104,6 +162,7 @@ const defaultState = {
   selectedView: "garden",
   calendarYear: new Date().getFullYear(),
   calendarMonth: new Date().getMonth(),
+  testWateringMode: false,
   habits: [],
 };
 
@@ -137,12 +196,15 @@ const calendarDetail = document.querySelector("#calendarDetail");
 const calendarSummary = document.querySelector("#calendarSummary");
 const previousMonth = document.querySelector("#previousMonth");
 const nextMonth = document.querySelector("#nextMonth");
+const testWateringMode = document.querySelector("#testWateringMode");
+const isPublicGithubPages = window.location.hostname.toLowerCase() === "5189dc.github.io";
 
 renderPlantPicker();
 renderSchedulePicker();
 renderStarterSuggestions();
 renderCalendarControls();
 renderActiveView();
+renderTestMode();
 renderGarden();
 renderCalendar();
 loadWeather();
@@ -216,6 +278,14 @@ previousMonth.addEventListener("click", () => {
 
 nextMonth.addEventListener("click", () => {
   moveCalendarMonth(1);
+});
+
+testWateringMode.addEventListener("change", () => {
+  if (isPublicGithubPages) return;
+
+  state.testWateringMode = testWateringMode.checked;
+  saveState();
+  renderGarden();
 });
 
 function renderPlantPicker() {
@@ -354,11 +424,12 @@ function renderGarden() {
     );
     const waterButton = card.querySelector(".water-button");
     const wateredToday = wasWateredToday(habit);
-    waterButton.disabled = wateredToday;
-    waterButton.textContent = wateredToday ? "Done today" : "Water";
+    const waterLocked = wateredToday && !state.testWateringMode;
+    waterButton.disabled = waterLocked;
+    waterButton.textContent = wateredToday && !state.testWateringMode ? "Done today" : "Water";
     waterButton.setAttribute(
       "aria-label",
-      wateredToday
+      waterLocked
         ? `${habit.name} has already been watered today`
         : `Water ${habit.name}`,
     );
@@ -438,6 +509,21 @@ function getGardenMetrics() {
     bestStreak,
     habitCount: state.habits.length,
   };
+}
+
+function renderTestMode() {
+  const testModeControl = testWateringMode.closest(".test-mode-toggle");
+  if (isPublicGithubPages) {
+    state.testWateringMode = false;
+    testWateringMode.checked = false;
+    testWateringMode.disabled = true;
+    testModeControl.hidden = true;
+    return;
+  }
+
+  testModeControl.hidden = false;
+  testWateringMode.disabled = false;
+  testWateringMode.checked = Boolean(state.testWateringMode);
 }
 
 function renderActiveView() {
@@ -790,6 +876,7 @@ function createGardenPlot(habit, index) {
   const stage = getStage(habit, plant, schedule);
   const habitStatus = getHabitStatus(habit, schedule);
   const wateredToday = wasWateredToday(habit);
+  const waterLocked = wateredToday && !state.testWateringMode;
   plot.classList.add(`stage-${stage + 1}`, habitStatus);
   plot.innerHTML = `
     <div class="plot-soil" aria-hidden="true">
@@ -806,10 +893,10 @@ function createGardenPlot(habit, index) {
       <em>${getHabitStatusText(habitStatus)}</em>
     </div>
     <button class="plot-water" type="button" aria-label="${
-      wateredToday
+      waterLocked
         ? `${escapeHtml(habit.name)} has already been watered today`
         : `Water ${escapeHtml(habit.name)}`
-    }"${wateredToday ? " disabled" : ""}>${wateredToday ? "Done today" : "Water"}</button>
+    }"${waterLocked ? " disabled" : ""}>${waterLocked ? "Done today" : "Water"}</button>
   `;
 
   plot.querySelector(".plot-water").addEventListener("click", () => {
@@ -820,18 +907,23 @@ function createGardenPlot(habit, index) {
 }
 
 function waterHabit(habit) {
-  if (wasWateredToday(habit)) return;
+  if (wasWateredToday(habit) && !state.testWateringMode) return;
 
+  const previousWaterLog = getHabitWaterLog(habit);
+  const shouldCountWatering = previousWaterLog.length > 0 || habit.waterings > 0;
   const wateredAt = new Date();
-  habit.waterings += 1;
+  if (shouldCountWatering) {
+    habit.waterings += 1;
+  }
   habit.lastWateredAt = wateredAt.toISOString();
   habit.lastWateredDay = getLocalDateKey(wateredAt);
   habit.waterLog = [
-    ...getHabitWaterLog(habit),
+    ...previousWaterLog,
     {
       at: habit.lastWateredAt,
       day: habit.lastWateredDay,
       waterings: habit.waterings,
+      counted: shouldCountWatering,
     },
   ];
   saveState();
@@ -939,6 +1031,7 @@ async function importGardenData(file) {
     Object.assign(state, loadState());
     renderPlantPicker();
     renderSchedulePicker();
+    renderTestMode();
     renderCalendarControls();
     renderActiveView();
     renderGarden();
@@ -949,15 +1042,43 @@ async function importGardenData(file) {
 }
 
 function createPlantMarkup(plant, stage, scale = "card") {
-  const sprite = getPlantSprite(plant, stage);
+  const layers = getPlantLayers(plant, stage);
+  if (!layers.length) {
+    const sprite = getPlantSprite(plant, stage);
+    return `
+      <span class="plant sprite-plant plant-${plant.id} stage-${stage + 1} ${
+        scale === "garden" ? "garden-plant" : ""
+      }">
+        <img class="plant-layer plant-base" src="${sprite}" alt="" loading="lazy" aria-hidden="true">
+      </span>
+    `;
+  }
+
   return `
-    <span class="plant sprite-plant plant-${plant.id} stage-${stage + 1} ${
+    <span class="plant sprite-plant layered-plant plant-${plant.id} stage-${stage + 1} ${
       scale === "garden" ? "garden-plant" : ""
     }">
-      <img class="plant-layer plant-base" src="${sprite}" alt="" loading="lazy" aria-hidden="true">
-      <img class="plant-layer plant-canopy" src="${sprite}" alt="" loading="lazy">
+      ${layers.map((layer, index) => `
+        <img
+          class="plant-layer ${layer.className}"
+          src="${getPlantLayerPath(plant, layer.file)}"
+          alt=""
+          loading="lazy"
+          aria-hidden="true"
+          style="--layer-index: ${index};"
+        >
+      `).join("")}
     </span>
   `;
+}
+
+function getPlantLayers(plant, stage) {
+  const getLayerAssets = plantLayerAssets[plant.id];
+  return getLayerAssets ? getLayerAssets(stage + 1) : [];
+}
+
+function getPlantLayerPath(plant, file) {
+  return `assets/prototypes/${plant.id}-layers/${file}?v=${plantAssetVersion}`;
 }
 
 function getPlantSprite(plant, stage) {
@@ -1280,6 +1401,7 @@ function loadState() {
     if (!Number.isInteger(nextState.calendarMonth) || nextState.calendarMonth < 0 || nextState.calendarMonth > 11) {
       nextState.calendarMonth = defaultState.calendarMonth;
     }
+    nextState.testWateringMode = isPublicGithubPages ? false : Boolean(nextState.testWateringMode);
     nextState.habits = nextState.habits.map((habit) => ({
       ...habit,
       plantId: getMigratedPlantId(habit.plantId),

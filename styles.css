@@ -464,6 +464,27 @@ button:focus-visible,
   justify-content: end;
 }
 
+.test-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid rgba(77, 130, 168, 0.24);
+  border-radius: 8px;
+  background: rgba(203, 231, 236, 0.5);
+  color: var(--soil-dark);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.test-mode-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--blue);
+}
+
 .import-action {
   position: relative;
   display: inline-grid;
@@ -1494,23 +1515,25 @@ body[data-weather="stormy"] .garden-bed::after {
 .sprite-plant {
   display: block;
   position: relative;
-  width: 156px;
-  height: 138px;
+  width: 168px;
+  height: 126px;
 }
 
 .sprite-plant .plant-layer {
   position: absolute;
-  bottom: 0;
-  left: 50%;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
-  transform: translateX(-50%);
-  transform-origin: 50% 88%;
+  transform-origin: var(--plant-origin, 50% 88%);
   filter: drop-shadow(0 9px 7px rgba(25, 17, 13, 0.18));
   pointer-events: none;
+}
+
+.layered-plant .plant-layer {
+  z-index: calc(1 + var(--layer-index));
 }
 
 .sprite-plant .plant-base {
@@ -1533,42 +1556,76 @@ body[data-weather="stormy"] .garden-bed::after {
 }
 
 .garden-plant.sprite-plant {
-  width: 176px;
-  height: 158px;
-  transform: translate(var(--plant-x), calc(var(--plant-y) - 46px)) scale(1.02);
+  width: 186px;
+  height: 140px;
+  transform: translate(var(--plant-x), calc(var(--plant-y) - 40px)) scale(1.04);
 }
 
 .garden-plot.stage-1 .garden-plant.sprite-plant {
-  width: 150px;
-  height: 146px;
-  transform: translate(var(--plant-x), calc(var(--plant-y) - 34px)) scale(1.02);
+  width: 154px;
+  height: 124px;
+  transform: translate(var(--plant-x), calc(var(--plant-y) - 28px)) scale(1.04);
 }
 
 .garden-plot.stage-2 .garden-plant.sprite-plant {
-  width: 162px;
-  height: 152px;
-  transform: translate(var(--plant-x), calc(var(--plant-y) - 38px)) scale(1.02);
+  width: 166px;
+  height: 130px;
+  transform: translate(var(--plant-x), calc(var(--plant-y) - 32px)) scale(1.04);
 }
 
 .garden-plot.stage-3 .garden-plant.sprite-plant {
-  width: 172px;
-  height: 158px;
-  transform: translate(var(--plant-x), calc(var(--plant-y) - 42px)) scale(1.02);
+  width: 176px;
+  height: 136px;
+  transform: translate(var(--plant-x), calc(var(--plant-y) - 36px)) scale(1.04);
 }
 
-.garden-plot .sprite-plant .plant-canopy {
-  width: 100%;
+.garden-plot .layered-plant .plant-layer-moving,
+.plant-scene .layered-plant .plant-layer-moving {
   animation: upper-breeze 4.8s ease-in-out infinite;
-  animation-delay: calc(var(--plot-delay) * -1);
+  animation-delay: calc(var(--plot-delay, 0ms) * -1);
 }
 
-body[data-weather="rainy"] .garden-plot .sprite-plant .plant-canopy,
-body[data-weather="stormy"] .garden-plot .sprite-plant .plant-canopy {
+body[data-weather="rainy"] .garden-plot .layered-plant .plant-layer-moving,
+body[data-weather="stormy"] .garden-plot .layered-plant .plant-layer-moving {
   animation-duration: 2.8s;
 }
 
-.garden-plot .plant-bonsai .plant-canopy {
+.layered-plant .plant-layer-flower,
+.layered-plant .plant-layer-blossom {
+  animation-name: flower-breeze;
+  animation-duration: 4.2s;
+  transform-origin: 50% 76%;
+}
+
+.layered-plant .plant-layer-spike,
+.layered-plant .plant-layer-frond {
+  animation-name: frond-breeze;
+  transform-origin: 50% 92%;
+}
+
+.layered-plant .plant-layer-canopy {
   animation-name: bonsai-breeze;
+  transform-origin: 50% 72%;
+}
+
+.layered-plant .plant-layer-a {
+  animation-delay: -260ms;
+}
+
+.layered-plant .plant-layer-b {
+  animation-delay: -620ms;
+}
+
+.layered-plant .plant-layer-c {
+  animation-delay: -980ms;
+}
+
+.layered-plant .plant-layer-d {
+  animation-delay: -1340ms;
+}
+
+.layered-plant .plant-layer-e {
+  animation-delay: -1700ms;
 }
 
 .stage-1 .sprite-plant .plant-layer {
@@ -1586,6 +1643,15 @@ body[data-weather="stormy"] .garden-plot .sprite-plant .plant-canopy {
 .stage-4 .sprite-plant .plant-layer,
 .stage-5 .sprite-plant .plant-layer {
   width: 100%;
+}
+
+.stage-1 .layered-plant .plant-layer,
+.stage-2 .layered-plant .plant-layer,
+.stage-3 .layered-plant .plant-layer,
+.stage-4 .layered-plant .plant-layer,
+.stage-5 .layered-plant .plant-layer {
+  width: 100%;
+  height: 100%;
 }
 
 .seed-shell {
@@ -2106,26 +2172,52 @@ body[data-weather="stormy"] .garden-plot .sprite-plant .plant-canopy {
 @keyframes upper-breeze {
   0%,
   100% {
-    transform: translateX(-50%) rotate(-0.45deg) skewX(-0.35deg);
+    transform: rotate(-0.45deg) skewX(-0.35deg);
   }
   45% {
-    transform: translateX(-50%) rotate(0.7deg) skewX(0.45deg) translateY(-1px);
+    transform: rotate(0.7deg) skewX(0.45deg) translateY(-1px);
   }
   70% {
-    transform: translateX(-50%) rotate(-0.2deg) skewX(-0.18deg);
+    transform: rotate(-0.2deg) skewX(-0.18deg);
+  }
+}
+
+@keyframes flower-breeze {
+  0%,
+  100% {
+    transform: rotate(-0.7deg) translateX(-0.5px);
+  }
+  48% {
+    transform: rotate(1.05deg) translateX(0.7px) translateY(-0.6px);
+  }
+  74% {
+    transform: rotate(-0.25deg);
+  }
+}
+
+@keyframes frond-breeze {
+  0%,
+  100% {
+    transform: rotate(-0.75deg) skewX(-0.35deg);
+  }
+  45% {
+    transform: rotate(0.95deg) skewX(0.5deg) translateY(-0.7px);
+  }
+  72% {
+    transform: rotate(-0.3deg) skewX(-0.18deg);
   }
 }
 
 @keyframes bonsai-breeze {
   0%,
   100% {
-    transform: translateX(-50%) rotate(-0.14deg) skewX(-0.12deg);
+    transform: rotate(-0.14deg) skewX(-0.12deg);
   }
   45% {
-    transform: translateX(-50%) rotate(0.22deg) skewX(0.16deg) translateY(-0.5px);
+    transform: rotate(0.22deg) skewX(0.16deg) translateY(-0.5px);
   }
   70% {
-    transform: translateX(-50%) rotate(-0.08deg) skewX(-0.08deg);
+    transform: rotate(-0.08deg) skewX(-0.08deg);
   }
 }
 

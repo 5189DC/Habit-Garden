@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sakura Layer Motion Prototype</title>
+    <style>
+      :root {
+        color: #223029;
+        background: #f8f4e9;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      body {
+        margin: 0;
+        padding: 28px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(28px, 4vw, 48px);
+        line-height: 1;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #617169;
+        font-weight: 700;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(150px, 1fr));
+        gap: 18px;
+      }
+
+      .card {
+        background: linear-gradient(#eaf7f4, #fbfbea);
+        border: 1px solid #d6d2c6;
+        border-radius: 8px;
+        overflow: visible;
+      }
+
+      .label {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 12px 0;
+        color: #617169;
+        font-weight: 800;
+      }
+
+      .plant-frame {
+        position: relative;
+        width: min(100%, 240px);
+        aspect-ratio: 4 / 3;
+        margin: 8px auto 2px;
+        overflow: visible;
+      }
+
+      .plant-frame img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transform-box: fill-box;
+        pointer-events: none;
+      }
+
+      .trunk {
+        z-index: 1;
+      }
+
+      .blossom {
+        animation: sakura-blossom 3.45s ease-in-out infinite;
+      }
+
+      .blossom-left {
+        z-index: 2;
+        animation-duration: 3.6s;
+        transform-origin: 44% 78%;
+      }
+
+      .blossom-center {
+        z-index: 3;
+        animation-duration: 3.35s;
+        transform-origin: 50% 78%;
+      }
+
+      .blossom-right {
+        z-index: 4;
+        animation-duration: 3.75s;
+        transform-origin: 56% 78%;
+      }
+
+      @keyframes sakura-blossom {
+        0%, 100% {
+          transform: rotate(-0.9deg) translateX(-0.3px);
+        }
+        50% {
+          transform: rotate(1deg) translateX(0.3px);
+        }
+      }
+
+      @media (max-width: 760px) {
+        body {
+          padding: 18px;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Sakura motion prototype</h1>
+    <p>Trunk, branches, soil, and fallen petals stay fixed; blossom clusters move softly.</p>
+    <main class="grid">
+      <section class="card">
+        <div class="label"><span>Stage 1</span><span>buds</span></div>
+        <div class="plant-frame stage-1">
+          <img class="trunk" src="sakura-stage-1-trunk-fixed.png" alt="">
+          <img class="blossom blossom-left" src="sakura-stage-1-blossom-left.png" alt="">
+          <img class="blossom blossom-center" src="sakura-stage-1-blossom-center.png" alt="">
+          <img class="blossom blossom-right" src="sakura-stage-1-blossom-right.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 2</span><span>opening</span></div>
+        <div class="plant-frame stage-2">
+          <img class="trunk" src="sakura-stage-2-trunk-fixed.png" alt="">
+          <img class="blossom blossom-left" src="sakura-stage-2-blossom-left.png" alt="">
+          <img class="blossom blossom-center" src="sakura-stage-2-blossom-center.png" alt="">
+          <img class="blossom blossom-right" src="sakura-stage-2-blossom-right.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 3</span><span>branch</span></div>
+        <div class="plant-frame stage-3">
+          <img class="trunk" src="sakura-stage-3-trunk-fixed.png" alt="">
+          <img class="blossom blossom-left" src="sakura-stage-3-blossom-left.png" alt="">
+          <img class="blossom blossom-center" src="sakura-stage-3-blossom-center.png" alt="">
+          <img class="blossom blossom-right" src="sakura-stage-3-blossom-right.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 4</span><span>bloom</span></div>
+        <div class="plant-frame stage-4">
+          <img class="trunk" src="sakura-stage-4-trunk-fixed.png" alt="">
+          <img class="blossom blossom-left" src="sakura-stage-4-blossom-left.png" alt="">
+          <img class="blossom blossom-center" src="sakura-stage-4-blossom-center.png" alt="">
+          <img class="blossom blossom-right" src="sakura-stage-4-blossom-right.png" alt="">
+        </div>
+      </section>
+      <section class="card">
+        <div class="label"><span>Stage 5</span><span>full</span></div>
+        <div class="plant-frame stage-5">
+          <img class="trunk" src="sakura-stage-5-trunk-fixed.png" alt="">
+          <img class="blossom blossom-left" src="sakura-stage-5-blossom-left.png" alt="">
+          <img class="blossom blossom-center" src="sakura-stage-5-blossom-center.png" alt="">
+          <img class="blossom blossom-right" src="sakura-stage-5-blossom-right.png" alt="">
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
