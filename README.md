@@ -1,6 +1,6 @@
 # Habit Garden
 
-Version: `v0.1.3`
+Version: `v0.2`
 
 Habit Garden is a small habit-tracking app where completing habits grows plants in a garden bed.
 
@@ -24,15 +24,19 @@ Watering schedule controls how quickly the plant grows:
 - Every 5 or 7 days: grows every 2 waterings.
 - Every 14 days or monthly: grows every watering.
 
-The app shows your total waterings, how many plants have fully grown, each habit's current plant stage, the last time each plant was watered, and how many more waterings are needed before the next growth stage. After a plant is watered, its water button changes to **Done today** until the next local day. You can reset a single plant back to a seed or remove one plant from the garden.
+The app shows your total waterings, how many plants have fully grown, each habit's current plant stage, the last time each plant was watered, the current streak, whether the plant is due, and how many more waterings are needed before the next growth stage. After a plant is watered, its water button changes to **Done today** until the next local day. You can edit a habit, reset a single plant back to a seed, or remove one plant from the garden.
 
 The garden bed has 10 plots for now. Planted habits appear in the bed, and empty plots stay ready for future habits. You can water a plant from the garden bed or from the habit detail card.
 
-The garden panel has two tabs: **Your garden** and **Calendar**. The calendar lets you choose a year and month, then shows plant icons with habit names on days when a habit was started or watered. New waterings are saved into a watering history so the calendar can show them going forward.
+The garden view also shows quick insight cards for this week's waterings, plants due today, and best streak. Reward badges unlock as the garden reaches milestones such as the first sprout, 10 waterings, first bloom, a 7 day streak, and a full garden. Starter habit chips make it faster to plant common habits such as reading, drinking water, exercise, and stretching.
 
-The garden uses staged hand-drawn plant sprites, staggered plots, soil texture, dry/freshly-watered states, stronger weather overlays, and small watering effects so plants feel more alive as habits progress. The plant artwork is stored in `assets/plants/`, with five growth-stage images for each plant.
+The garden panel has two tabs: **Your garden** and **Calendar**. The calendar lets you choose a year and month, then shows a clean day summary with plant icons plus started/watered counts. Selecting a day shows the full event details with action badges, plant icons, habit names, and plant names. On phone-sized screens, the calendar changes into a row-based agenda so the events are easier to read.
+
+The garden uses staged hand-drawn plant sprites, staggered plots, soil texture, dry/freshly-watered states, stronger weather overlays, and small watering effects so plants feel more alive as habits progress. Plant motion is layered so the base stays planted while the upper leaves and flowers move gently in the breeze, with a calmer bonsai animation so the pot does not wobble. The plant artwork is stored in `assets/plants/`, with five growth-stage images for each plant.
 
 The app can animate the garden sky from local weather using Open-Meteo current conditions. Use **Use my location** to let the browser share your location for the weather animation. If location is unavailable, the app falls back to a default garden sky. Your garden is saved in the browser with `localStorage`.
+
+You can export your garden data to a JSON file and import it later on the same or another device. Version `v0.2` also includes a web app manifest, icon, and service worker so the app can be added to an iPhone Home Screen and cached for a more app-like experience.
 
 ## How To Open
 
@@ -40,7 +44,7 @@ The app can animate the garden sky from local weather using Open-Meteo current c
 
 If GitHub Pages is enabled for this repository, open the published site URL in your browser. On iPhone, open the URL in Safari and use **Share** -> **Add to Home Screen** to keep it like an app icon.
 
-If an iPhone still shows old behavior after an update, refresh the Safari page or remove and re-add the Home Screen shortcut. The app uses versioned file links to help Safari fetch the current release.
+If an iPhone still shows old behavior after an update, refresh the Safari page or remove and re-add the Home Screen shortcut. The app uses versioned file links and a versioned service-worker cache to help Safari fetch the current release.
 
 Location-based weather animation requires the site to be served over HTTPS, which GitHub Pages provides.
 
@@ -69,4 +73,4 @@ http://127.0.0.1:8765/
 
 ## Notes
 
-Habit data is saved in the browser on the device you use. A garden saved on your computer will not automatically sync to your iPhone unless a cloud database is added later.
+Habit data is saved in the browser on the device you use. A garden saved on your computer will not automatically sync to your iPhone unless you use the export/import buttons or a cloud database is added later.

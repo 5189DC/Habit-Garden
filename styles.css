@@ -166,6 +166,34 @@ h2 {
   top: 18px;
 }
 
+.starter-suggestions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.starter-chip {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  padding: 7px 9px;
+  border: 1px solid rgba(47, 125, 76, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--soil-dark);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-align: left;
+}
+
+.starter-chip img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 .form-header p,
 .panel-heading p {
   margin-bottom: 0;
@@ -383,6 +411,7 @@ button:focus-visible,
 .primary-action,
 .ghost-action,
 .water-button,
+.edit-plant-button,
 .reset-plant-button,
 .remove-plant-button {
   min-height: 42px;
@@ -428,6 +457,30 @@ button:focus-visible,
   margin-bottom: 14px;
 }
 
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: end;
+}
+
+.import-action {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  min-height: 42px;
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.import-action input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .garden-tabs {
   display: inline-grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -471,6 +524,62 @@ button:focus-visible,
   color: var(--muted);
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.garden-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.garden-insights article {
+  min-height: 68px;
+  padding: 12px;
+  border: 1px solid rgba(36, 48, 42, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.garden-insights strong,
+.garden-insights span {
+  display: block;
+}
+
+.garden-insights strong {
+  color: var(--ink);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.garden-insights span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.reward-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.reward-badge {
+  padding: 7px 9px;
+  border: 1px solid rgba(36, 48, 42, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.56);
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.reward-badge.unlocked {
+  border-color: rgba(47, 125, 76, 0.28);
+  background: rgba(223, 232, 199, 0.72);
+  color: var(--leaf);
 }
 
 .garden-bed {
@@ -794,11 +903,6 @@ body[data-weather="stormy"] .garden-bed::after {
   filter: saturate(0.72) brightness(0.96);
 }
 
-.happy-plant .plant,
-.recently-watered .plant {
-  animation: plant-sway 3.6s ease-in-out infinite;
-}
-
 .plot-marker {
   position: relative;
   z-index: 1;
@@ -975,7 +1079,7 @@ body[data-weather="stormy"] .garden-bed::after {
 }
 
 .calendar-day {
-  min-height: 132px;
+  min-height: 118px;
   padding: 9px;
   border: 1px solid rgba(36, 48, 42, 0.12);
   border-radius: 8px;
@@ -997,9 +1101,20 @@ body[data-weather="stormy"] .garden-bed::after {
 }
 
 .calendar-day.has-events {
+  cursor: pointer;
   background:
     linear-gradient(180deg, rgba(255, 250, 240, 0.86), rgba(223, 232, 199, 0.46)),
     rgba(255, 255, 255, 0.72);
+}
+
+.calendar-day.has-events:hover,
+.calendar-day.has-events:focus-visible,
+.calendar-day.is-selected {
+  border-color: rgba(47, 125, 76, 0.42);
+  box-shadow:
+    inset 0 0 0 2px rgba(47, 125, 76, 0.12),
+    0 8px 18px rgba(55, 68, 52, 0.08);
+  outline: none;
 }
 
 .calendar-date {
@@ -1026,10 +1141,78 @@ body[data-weather="stormy"] .garden-bed::after {
   gap: 6px;
 }
 
+.calendar-day-summary {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.calendar-day-icons {
+  display: flex;
+  align-items: center;
+  min-height: 34px;
+}
+
+.calendar-day-icons img,
+.calendar-day-icons span {
+  width: 32px;
+  height: 32px;
+  margin-left: -8px;
+  border: 1px solid rgba(36, 48, 42, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.74);
+  box-shadow: 0 3px 8px rgba(55, 68, 52, 0.08);
+}
+
+.calendar-day-icons img:first-child,
+.calendar-day-icons span:first-child {
+  margin-left: 0;
+}
+
+.calendar-day-icons img {
+  object-fit: contain;
+  padding: 3px;
+}
+
+.calendar-day-icons span {
+  display: inline-grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.calendar-day-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.calendar-day-counts span {
+  display: inline-grid;
+  min-height: 22px;
+  place-items: center;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.calendar-day-counts .started {
+  background: rgba(47, 125, 76, 0.14);
+  color: var(--leaf);
+}
+
+.calendar-day-counts .watered {
+  background: rgba(77, 130, 168, 0.16);
+  color: var(--blue);
+}
+
 .calendar-event {
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr);
-  gap: 5px;
+  grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1.2fr);
+  gap: 4px;
   align-items: center;
   min-height: 34px;
   padding: 4px;
@@ -1054,7 +1237,27 @@ body[data-weather="stormy"] .garden-bed::after {
   object-fit: contain;
 }
 
-.calendar-event strong {
+.calendar-event-badge {
+  display: inline-grid;
+  place-items: center;
+  min-height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(47, 125, 76, 0.14);
+  color: var(--leaf);
+  font-size: 0.58rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.calendar-event.watered .calendar-event-badge {
+  background: rgba(77, 130, 168, 0.16);
+  color: var(--blue);
+}
+
+.calendar-event strong,
+.calendar-event em {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1063,6 +1266,15 @@ body[data-weather="stormy"] .garden-bed::after {
 .calendar-event strong {
   color: var(--ink);
   font-size: 0.72rem;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.calendar-event em {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 800;
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -1128,6 +1340,84 @@ body[data-weather="stormy"] .garden-bed::after {
   color: var(--muted);
   font-weight: 850;
   text-align: center;
+}
+
+.calendar-detail {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(36, 48, 42, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.calendar-detail p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.calendar-detail h3 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.calendar-detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+.calendar-detail-item {
+  display: grid;
+  grid-template-columns: 78px 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 250, 240, 0.72);
+}
+
+.calendar-detail-item.watered {
+  background: rgba(224, 242, 246, 0.72);
+}
+
+.calendar-detail-item img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.calendar-detail-badge {
+  display: inline-grid;
+  place-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(47, 125, 76, 0.14);
+  color: var(--leaf);
+  font-size: 0.74rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.calendar-detail-item.watered .calendar-detail-badge {
+  background: rgba(77, 130, 168, 0.16);
+  color: var(--blue);
+}
+
+.calendar-detail-item strong,
+.calendar-detail-item em {
+  display: block;
+}
+
+.calendar-detail-item strong {
+  color: var(--ink);
+}
+
+.calendar-detail-item em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 800;
 }
 
 .empty-garden {
@@ -1202,19 +1492,44 @@ body[data-weather="stormy"] .garden-bed::after {
 }
 
 .sprite-plant {
-  display: grid;
-  place-items: end center;
+  display: block;
+  position: relative;
   width: 156px;
   height: 138px;
 }
 
-.sprite-plant img {
+.sprite-plant .plant-layer {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
   object-position: center bottom;
+  transform: translateX(-50%);
+  transform-origin: 50% 88%;
   filter: drop-shadow(0 9px 7px rgba(25, 17, 13, 0.18));
+  pointer-events: none;
+}
+
+.sprite-plant .plant-base {
+  clip-path: inset(66% 0 0 0);
+  z-index: 1;
+}
+
+.sprite-plant .plant-canopy {
+  clip-path: inset(0 0 22% 0);
+  z-index: 2;
+}
+
+.plant-bonsai .plant-base {
+  clip-path: inset(54% 0 0 0);
+}
+
+.plant-bonsai .plant-canopy {
+  clip-path: inset(0 0 38% 0);
+  transform-origin: 50% 74%;
 }
 
 .garden-plant.sprite-plant {
@@ -1241,28 +1556,35 @@ body[data-weather="stormy"] .garden-bed::after {
   transform: translate(var(--plant-x), calc(var(--plant-y) - 42px)) scale(1.02);
 }
 
-.garden-plot .sprite-plant img {
+.garden-plot .sprite-plant .plant-canopy {
   width: 100%;
+  animation: upper-breeze 4.8s ease-in-out infinite;
+  animation-delay: calc(var(--plot-delay) * -1);
 }
 
-.stage-1 .sprite-plant img {
+body[data-weather="rainy"] .garden-plot .sprite-plant .plant-canopy,
+body[data-weather="stormy"] .garden-plot .sprite-plant .plant-canopy {
+  animation-duration: 2.8s;
+}
+
+.garden-plot .plant-bonsai .plant-canopy {
+  animation-name: bonsai-breeze;
+}
+
+.stage-1 .sprite-plant .plant-layer {
   width: 74%;
 }
 
-.stage-2 .sprite-plant img {
+.stage-2 .sprite-plant .plant-layer {
   width: 82%;
 }
 
-.stage-3 .sprite-plant img {
+.stage-3 .sprite-plant .plant-layer {
   width: 91%;
 }
 
-.stage-4 .sprite-plant img,
-.stage-5 .sprite-plant img {
-  width: 100%;
-}
-
-.garden-plot .sprite-plant img {
+.stage-4 .sprite-plant .plant-layer,
+.stage-5 .sprite-plant .plant-layer {
   width: 100%;
 }
 
@@ -1717,6 +2039,7 @@ body[data-weather="stormy"] .garden-bed::after {
   color: white;
 }
 
+.edit-plant-button,
 .reset-plant-button,
 .remove-plant-button {
   min-width: 86px;
@@ -1726,6 +2049,12 @@ body[data-weather="stormy"] .garden-bed::after {
   color: var(--soil-dark);
   font-size: 0.74rem;
   white-space: nowrap;
+}
+
+.edit-plant-button {
+  border-color: rgba(77, 130, 168, 0.22);
+  background: rgba(232, 245, 248, 0.78);
+  color: var(--blue);
 }
 
 .remove-plant-button {
@@ -1774,13 +2103,29 @@ body[data-weather="stormy"] .garden-bed::after {
   }
 }
 
-@keyframes plant-sway {
+@keyframes upper-breeze {
   0%,
   100% {
-    filter: brightness(1);
+    transform: translateX(-50%) rotate(-0.45deg) skewX(-0.35deg);
   }
-  50% {
-    filter: brightness(1.06);
+  45% {
+    transform: translateX(-50%) rotate(0.7deg) skewX(0.45deg) translateY(-1px);
+  }
+  70% {
+    transform: translateX(-50%) rotate(-0.2deg) skewX(-0.18deg);
+  }
+}
+
+@keyframes bonsai-breeze {
+  0%,
+  100% {
+    transform: translateX(-50%) rotate(-0.14deg) skewX(-0.12deg);
+  }
+  45% {
+    transform: translateX(-50%) rotate(0.22deg) skewX(0.16deg) translateY(-0.5px);
+  }
+  70% {
+    transform: translateX(-50%) rotate(-0.08deg) skewX(-0.08deg);
   }
 }
 
@@ -1900,6 +2245,20 @@ body[data-weather="stormy"] .garden-bed::after {
     position: static;
   }
 
+  .starter-suggestions,
+  .garden-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-actions {
+    justify-content: stretch;
+  }
+
+  .panel-actions .ghost-action,
+  .import-action {
+    width: 100%;
+  }
+
   .stats {
     width: 100%;
     min-width: 0;
@@ -1950,7 +2309,7 @@ body[data-weather="stormy"] .garden-bed::after {
   }
 
   .calendar-event {
-    grid-template-columns: 34px minmax(0, 1fr);
+    grid-template-columns: 78px 34px minmax(0, 1fr);
     gap: 8px;
     min-height: 48px;
     padding: 7px;
@@ -1963,6 +2322,16 @@ body[data-weather="stormy"] .garden-bed::after {
 
   .calendar-event strong {
     font-size: 0.9rem;
+  }
+
+  .calendar-event em {
+    font-size: 0.74rem;
+  }
+
+  .calendar-event-badge {
+    min-height: 28px;
+    padding: 0 8px;
+    font-size: 0.72rem;
   }
 
   .garden-plot {

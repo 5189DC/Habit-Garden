@@ -1,0 +1,17 @@
+{
+  "name": "Habit Garden",
+  "short_name": "Habit Garden",
+  "description": "Water daily habits and grow a garden of plants.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#fffaf0",
+  "theme_color": "#dfe8c7",
+  "icons": [
+    {
+      "src": "assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

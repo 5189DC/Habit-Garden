@@ -3,8 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#dfe8c7" />
+    <meta name="apple-mobile-web-app-title" content="Habit Garden" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Habit Garden</title>
-    <link rel="stylesheet" href="styles.css?v=0.1.3-mobile-agenda" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/app-icon.svg" />
+    <link rel="stylesheet" href="styles.css?v=0.2" />
   </head>
   <body>
     <main class="app-shell">
@@ -31,6 +37,7 @@
             <h2>Add a habit</h2>
             <p>Pick the action, then choose the plant it should become.</p>
           </div>
+          <div class="starter-suggestions" id="starterSuggestions" aria-label="Starter habit suggestions"></div>
 
           <label>
             Habit name
@@ -64,6 +71,13 @@
               <h2>Your garden</h2>
               <p id="gardenSubtitle">Each completion waters a plant once.</p>
             </div>
+            <div class="panel-actions">
+              <button class="ghost-action" id="exportGarden" type="button">Export</button>
+              <label class="ghost-action import-action">
+                Import
+                <input id="importGarden" type="file" accept="application/json,.json" />
+              </label>
+            </div>
           </div>
 
           <div class="garden-tabs" role="tablist" aria-label="Garden views">
@@ -80,6 +94,8 @@
               <span id="weatherStatus" aria-live="polite">Garden sky is syncing...</span>
               <button class="ghost-action" id="useLocation" type="button">Use my location</button>
             </div>
+            <div class="garden-insights" id="gardenInsights" aria-label="Garden insights"></div>
+            <div class="reward-strip" id="rewardStrip" aria-label="Garden rewards"></div>
             <div class="garden-bed" id="gardenBed" aria-label="Garden bed with 10 plant plots"></div>
             <div class="garden-grid" id="gardenGrid" aria-label="Habit details"></div>
           </div>
@@ -109,6 +125,7 @@
             </div>
             <div class="calendar-grid" id="calendarGrid" aria-label="Habit calendar"></div>
             <div class="calendar-agenda" id="calendarAgenda" aria-label="Habit calendar events"></div>
+            <div class="calendar-detail" id="calendarDetail" aria-live="polite"></div>
           </div>
         </section>
       </section>
@@ -125,6 +142,7 @@
           </div>
           <div class="card-actions">
             <button class="water-button" type="button">Water</button>
+            <button class="edit-plant-button" type="button">Edit</button>
             <button class="reset-plant-button" type="button">Reset</button>
             <button class="remove-plant-button" type="button">Remove</button>
           </div>
@@ -138,6 +156,6 @@
       </article>
     </template>
 
-    <script src="app.js?v=0.1.3-mobile-agenda"></script>
+    <script src="app.js?v=0.2"></script>
   </body>
 </html>

@@ -73,6 +73,21 @@ const schedules = [
   { id: "monthly", label: "Monthly", days: 30, rhythm: 1 },
 ];
 
+const starterHabits = [
+  { name: "Read 10 pages", plantId: "sakura", scheduleId: "one-day" },
+  { name: "Drink water", plantId: "sprout", scheduleId: "one-day" },
+  { name: "Exercise", plantId: "sunflower", scheduleId: "three-day" },
+  { name: "Stretch", plantId: "fern", scheduleId: "one-day" },
+];
+
+const rewards = [
+  { id: "first-sprout", label: "First sprout", test: ({ habitCount }) => habitCount >= 1 },
+  { id: "rainmaker", label: "10 waterings", test: ({ waterCount }) => waterCount >= 10 },
+  { id: "bloom-keeper", label: "First bloom", test: ({ bloomCount }) => bloomCount >= 1 },
+  { id: "steady-week", label: "7 day streak", test: ({ bestStreak }) => bestStreak >= 7 },
+  { id: "full-bed", label: "Full garden", test: ({ habitCount }) => habitCount >= maxGardenPlants },
+];
+
 const storageKey = "habit-garden-state-v1";
 const locationStorageKey = "habit-garden-weather-location-v1";
 const plantAssetVersion = "2026-06-15-5";
@@ -106,6 +121,11 @@ const gardenSubtitle = document.querySelector("#gardenSubtitle");
 const habitCardTemplate = document.querySelector("#habitCardTemplate");
 const useLocation = document.querySelector("#useLocation");
 const weatherStatus = document.querySelector("#weatherStatus");
+const starterSuggestions = document.querySelector("#starterSuggestions");
+const gardenInsights = document.querySelector("#gardenInsights");
+const rewardStrip = document.querySelector("#rewardStrip");
+const exportGarden = document.querySelector("#exportGarden");
+const importGarden = document.querySelector("#importGarden");
 const gardenTabs = document.querySelectorAll(".garden-tab");
 const gardenView = document.querySelector("#gardenView");
 const calendarView = document.querySelector("#calendarView");
@@ -113,17 +133,20 @@ const calendarMonth = document.querySelector("#calendarMonth");
 const calendarYear = document.querySelector("#calendarYear");
 const calendarGrid = document.querySelector("#calendarGrid");
 const calendarAgenda = document.querySelector("#calendarAgenda");
+const calendarDetail = document.querySelector("#calendarDetail");
 const calendarSummary = document.querySelector("#calendarSummary");
 const previousMonth = document.querySelector("#previousMonth");
 const nextMonth = document.querySelector("#nextMonth");
 
 renderPlantPicker();
 renderSchedulePicker();
+renderStarterSuggestions();
 renderCalendarControls();
 renderActiveView();
 renderGarden();
 renderCalendar();
 loadWeather();
+registerServiceWorker();
 
 habitForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -156,6 +179,15 @@ habitForm.addEventListener("submit", (event) => {
 
 useLocation.addEventListener("click", () => {
   loadWeather({ requestLocation: true });
+});
+
+exportGarden.addEventListener("click", () => {
+  exportGardenData();
+});
+
+importGarden.addEventListener("change", () => {
+  importGardenData(importGarden.files?.[0]);
+  importGarden.value = "";
 });
 
 gardenTabs.forEach((tab) => {
@@ -237,16 +269,37 @@ function renderSchedulePicker() {
   });
 }
 
+function renderStarterSuggestions() {
+  starterSuggestions.innerHTML = "";
+
+  starterHabits.forEach((starter) => {
+    const plant = getPlant(starter.plantId);
+    const button = document.createElement("button");
+    button.className = "starter-chip";
+    button.type = "button";
+    button.innerHTML = `
+      <img src="${getPlantSprite(plant, plant.stages - 1)}" alt="" loading="lazy">
+      <span>${starter.name}</span>
+    `;
+    button.addEventListener("click", () => {
+      habitName.value = starter.name;
+      state.selectedPlantId = starter.plantId;
+      state.selectedScheduleId = starter.scheduleId;
+      saveState();
+      renderPlantPicker();
+      renderSchedulePicker();
+      habitName.focus();
+    });
+    starterSuggestions.append(button);
+  });
+}
+
 function renderGarden() {
   gardenBed.innerHTML = "";
   gardenGrid.innerHTML = "";
 
-  const waterCount = state.habits.reduce((sum, habit) => sum + habit.waterings, 0);
-  const bloomCount = state.habits.filter((habit) => {
-    const plant = getPlant(habit.plantId);
-    const schedule = getSchedule(habit.scheduleId || habit.plantId);
-    return getStage(habit, plant, schedule) === plant.stages - 1;
-  }).length;
+  const metrics = getGardenMetrics();
+  const { waterCount, bloomCount } = metrics;
 
   totalWatered.textContent = waterCount;
   plantsBloomed.textContent = bloomCount;
@@ -254,6 +307,8 @@ function renderGarden() {
     ? `${state.habits.length} of ${maxGardenPlants} plots planted.`
     : "Each completion waters a plant once.";
   habitForm.querySelector(".primary-action").disabled = state.habits.length >= maxGardenPlants;
+  renderGardenInsights(metrics);
+  renderRewards(metrics);
 
   for (let index = 0; index < maxGardenPlants; index += 1) {
     gardenBed.append(createGardenPlot(state.habits[index], index));
@@ -288,11 +343,11 @@ function renderGarden() {
     card.querySelector(".plant-name").textContent = `${plant.name} - ${schedule.label} - stage ${
       stage + 1
     } of ${plant.stages}`;
-    card.querySelector(".last-watered").textContent = getLastWateredText(habit);
+    card.querySelector(".last-watered").textContent = `${getLastWateredText(habit)} - ${getStreakText(habit, schedule)}`;
     card.querySelector(".progress-copy").textContent =
       stage === plant.stages - 1
-        ? `${habit.waterings} waterings - fully grown`
-        : `${habit.waterings} waterings - ${nextGrowthAt - habit.waterings} until next growth`;
+        ? `${habit.waterings} waterings - fully grown - ${getDueText(habit, schedule)}`
+        : `${habit.waterings} waterings - ${nextGrowthAt - habit.waterings} until next growth - ${getDueText(habit, schedule)}`;
     card.querySelector(".progress-track").style.setProperty(
       "--progress",
       `${Math.max(0, Math.min(1, stageProgress)) * 100}%`,
@@ -310,6 +365,9 @@ function renderGarden() {
     waterButton.addEventListener("click", () => {
       waterHabit(habit);
     });
+    card.querySelector(".edit-plant-button").addEventListener("click", () => {
+      editHabitPlant(habit);
+    });
     card.querySelector(".reset-plant-button").addEventListener("click", () => {
       resetHabitPlant(habit);
     });
@@ -319,6 +377,67 @@ function renderGarden() {
 
     gardenGrid.append(card);
   });
+}
+
+function renderGardenInsights(metrics) {
+  gardenInsights.innerHTML = `
+    <article>
+      <strong>${metrics.weekWaterings}</strong>
+      <span>this week</span>
+    </article>
+    <article>
+      <strong>${metrics.dueToday}</strong>
+      <span>due today</span>
+    </article>
+    <article>
+      <strong>${metrics.bestStreak}</strong>
+      <span>best streak</span>
+    </article>
+  `;
+}
+
+function renderRewards(metrics) {
+  rewardStrip.innerHTML = rewards.map((reward) => {
+    const unlocked = reward.test(metrics);
+    return `
+      <span class="reward-badge ${unlocked ? "unlocked" : "locked"}">
+        ${unlocked ? "Unlocked" : "Locked"}: ${reward.label}
+      </span>
+    `;
+  }).join("");
+}
+
+function getGardenMetrics() {
+  const waterCount = state.habits.reduce((sum, habit) => sum + habit.waterings, 0);
+  const bloomCount = state.habits.filter((habit) => {
+    const plant = getPlant(habit.plantId);
+    const schedule = getSchedule(habit.scheduleId || habit.plantId);
+    return getStage(habit, plant, schedule) === plant.stages - 1;
+  }).length;
+  const weekStart = getStartOfWeek(new Date());
+  const weekWaterings = state.habits.reduce((sum, habit) => {
+    return sum + getHabitWaterLog(habit).filter((entry) => {
+      const wateredAt = new Date(entry.at || entry.day);
+      return !Number.isNaN(wateredAt.getTime()) && wateredAt >= weekStart;
+    }).length;
+  }, 0);
+  const dueToday = state.habits.filter((habit) => {
+    const schedule = getSchedule(habit.scheduleId || habit.plantId);
+    return ["ready-plant", "dry-plant"].includes(getHabitStatus(habit, schedule));
+  }).length;
+  const bestStreak = state.habits.reduce((best, habit) => {
+    const schedule = getSchedule(habit.scheduleId || habit.plantId);
+    return Math.max(best, getHabitStreaks(habit, schedule).best);
+  }, 0);
+
+  return {
+    waterCount,
+    bloomCount,
+    weekWaterings,
+    dueToday,
+    bestStreak,
+    habitCount: state.habits.length,
+  };
 }
 
 function renderActiveView() {
@@ -398,14 +517,29 @@ function renderCalendar() {
         <strong>${day}</strong>
         <span>${events.length ? `${events.length} event${events.length === 1 ? "" : "s"}` : ""}</span>
       </div>
-      <div class="calendar-events">
-        ${events.map(createCalendarEventMarkup).join("")}
-      </div>
+      ${createCalendarDaySummary(events)}
     `;
+    if (events.length) {
+      dayCell.tabIndex = 0;
+      dayCell.addEventListener("click", () => {
+        selectCalendarDay(dayCell, dayKey, events);
+      });
+      dayCell.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectCalendarDay(dayCell, dayKey, events);
+        }
+      });
+    }
     calendarGrid.append(dayCell);
   }
 
   renderCalendarAgenda(eventsByDay, year, month);
+  const firstEventDay = [...eventsByDay.entries()]
+    .map(([dayKey, events]) => ({ dayKey, events, date: parseDateKey(dayKey) }))
+    .filter(({ date, events }) => date && events.length)
+    .sort((first, second) => first.date.getTime() - second.date.getTime())[0];
+  renderCalendarDetail(firstEventDay?.dayKey, firstEventDay?.events || []);
 }
 
 function renderCalendarAgenda(eventsByDay, year, month) {
@@ -441,8 +575,80 @@ function renderCalendarAgenda(eventsByDay, year, month) {
         ${events.map(createCalendarEventMarkup).join("")}
       </div>
     `;
+    row.addEventListener("click", () => {
+      renderCalendarDetail(getLocalDateKey(date), events);
+    });
     calendarAgenda.append(row);
   });
+}
+
+function renderCalendarDetail(dayKey, events) {
+  if (!dayKey || !events.length) {
+    calendarDetail.innerHTML = "<p>Select a day with events to see the details.</p>";
+    return;
+  }
+
+  const date = parseDateKey(dayKey);
+  const label = date
+    ? date.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric", year: "numeric" })
+    : dayKey;
+
+  calendarDetail.innerHTML = `
+    <h3>${label}</h3>
+    <div class="calendar-detail-list">
+      ${events.map((event) => {
+        const action = event.type === "started" ? "Started" : "Watered";
+        return `
+          <div class="calendar-detail-item ${event.type}">
+            <span class="calendar-detail-badge">${action}</span>
+            <img src="${getPlantSprite(event.plant, event.plant.stages - 1)}" alt="" loading="lazy">
+            <span>
+              <strong>${escapeHtml(event.habitName)}</strong>
+              <em>${escapeHtml(event.plant.name)}</em>
+            </span>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function selectCalendarDay(dayCell, dayKey, events) {
+  calendarGrid.querySelectorAll(".calendar-day.is-selected").forEach((cell) => {
+    cell.classList.remove("is-selected");
+  });
+  dayCell.classList.add("is-selected");
+  renderCalendarDetail(dayKey, events);
+}
+
+function createCalendarDaySummary(events) {
+  if (!events.length) {
+    return '<div class="calendar-events is-empty"></div>';
+  }
+
+  const started = events.filter((event) => event.type === "started").length;
+  const watered = events.length - started;
+  const uniquePlants = [];
+  events.forEach((event) => {
+    if (!uniquePlants.some((plant) => plant.id === event.plant.id)) {
+      uniquePlants.push(event.plant);
+    }
+  });
+
+  return `
+    <div class="calendar-day-summary" aria-label="${events.length} garden events">
+      <div class="calendar-day-icons">
+        ${uniquePlants.slice(0, 5).map((plant) => `
+          <img src="${getPlantSprite(plant, plant.stages - 1)}" alt="${escapeHtml(plant.name)}" loading="lazy">
+        `).join("")}
+        ${uniquePlants.length > 5 ? `<span>+${uniquePlants.length - 5}</span>` : ""}
+      </div>
+      <div class="calendar-day-counts">
+        ${started ? `<span class="started">${started} started</span>` : ""}
+        ${watered ? `<span class="watered">${watered} watered</span>` : ""}
+      </div>
+    </div>
+  `;
 }
 
 function moveCalendarMonth(direction) {
@@ -515,9 +721,11 @@ function createCalendarEventMarkup(event) {
   const title = `${action} ${event.habitName} with ${event.plant.name}`;
   return `
     <div class="calendar-event ${event.type}" title="${escapeHtml(title)}">
+      <span class="calendar-event-badge">${action}</span>
       <img src="${getPlantSprite(event.plant, event.plant.stages - 1)}" alt="" loading="lazy">
       <span>
         <strong>${escapeHtml(event.habitName)}</strong>
+        <em>${escapeHtml(event.plant.name)}</em>
       </span>
     </div>
   `;
@@ -655,12 +863,99 @@ function removeHabitPlant(habit) {
   renderCalendar();
 }
 
+function editHabitPlant(habit) {
+  const nextName = window.prompt("Habit name", habit.name);
+  if (nextName === null) return;
+
+  const trimmedName = nextName.trim();
+  if (!trimmedName) {
+    window.alert("Habit name cannot be blank.");
+    return;
+  }
+
+  const plantNames = plants.map((plant) => plant.name).join(", ");
+  const nextPlantName = window.prompt(`Plant (${plantNames})`, getPlant(habit.plantId).name);
+  if (nextPlantName === null) return;
+
+  const nextPlant = plants.find((plant) => plant.name.toLowerCase() === nextPlantName.trim().toLowerCase());
+  if (!nextPlant) {
+    window.alert("Plant was not changed because that plant name was not found.");
+    return;
+  }
+
+  const scheduleLabels = schedules.map((schedule) => schedule.label).join(", ");
+  const nextScheduleLabel = window.prompt(`Watering schedule (${scheduleLabels})`, getSchedule(habit.scheduleId).label);
+  if (nextScheduleLabel === null) return;
+
+  const nextSchedule = schedules.find((schedule) => schedule.label.toLowerCase() === nextScheduleLabel.trim().toLowerCase());
+  if (!nextSchedule) {
+    window.alert("Schedule was not changed because that schedule was not found.");
+    return;
+  }
+
+  habit.name = trimmedName;
+  habit.plantId = nextPlant.id;
+  habit.scheduleId = nextSchedule.id;
+  saveState();
+  renderGarden();
+  renderCalendarControls();
+  renderCalendar();
+}
+
+function exportGardenData() {
+  const exportData = {
+    app: "Habit Garden",
+    version: "v0.1.3-local",
+    exportedAt: new Date().toISOString(),
+    state,
+  };
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `habit-garden-${getLocalDateKey()}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+async function importGardenData(file) {
+  if (!file) return;
+
+  try {
+    const imported = JSON.parse(await file.text());
+    const importedState = imported.state || imported;
+    if (!Array.isArray(importedState.habits)) {
+      throw new Error("Missing habits");
+    }
+
+    const shouldImport = window.confirm("Import this garden? It will replace the garden saved on this device.");
+    if (!shouldImport) return;
+
+    const nextState = {
+      ...defaultState,
+      ...importedState,
+      habits: importedState.habits,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(nextState));
+    Object.assign(state, loadState());
+    renderPlantPicker();
+    renderSchedulePicker();
+    renderCalendarControls();
+    renderActiveView();
+    renderGarden();
+    renderCalendar();
+  } catch {
+    window.alert("Could not import that garden file.");
+  }
+}
+
 function createPlantMarkup(plant, stage, scale = "card") {
+  const sprite = getPlantSprite(plant, stage);
   return `
     <span class="plant sprite-plant plant-${plant.id} stage-${stage + 1} ${
       scale === "garden" ? "garden-plant" : ""
     }">
-      <img src="${getPlantSprite(plant, stage)}" alt="" loading="lazy">
+      <img class="plant-layer plant-base" src="${sprite}" alt="" loading="lazy" aria-hidden="true">
+      <img class="plant-layer plant-canopy" src="${sprite}" alt="" loading="lazy">
     </span>
   `;
 }
@@ -679,6 +974,72 @@ function getPlant(plantId) {
 
 function getSchedule(scheduleId) {
   return schedules.find((schedule) => schedule.id === scheduleId) || schedules[0];
+}
+
+function getDueText(habit, schedule) {
+  const status = getHabitStatus(habit, schedule);
+  const labels = {
+    "new-plant": "not started",
+    "recently-watered": "done today",
+    "happy-plant": "not due yet",
+    "ready-plant": "due today",
+    "dry-plant": "overdue",
+  };
+  return labels[status] || "growing";
+}
+
+function getStreakText(habit, schedule) {
+  const streaks = getHabitStreaks(habit, schedule);
+  return `${streaks.current} day streak`;
+}
+
+function getHabitStreaks(habit, schedule) {
+  const days = [...new Set(getHabitWaterLog(habit).map((entry) => entry.day).filter(Boolean))]
+    .sort();
+  if (!days.length) return { current: 0, best: 0 };
+
+  let best = 1;
+  let run = 1;
+  for (let index = 1; index < days.length; index += 1) {
+    const gap = getDayGap(days[index - 1], days[index]);
+    if (gap <= Math.max(1, schedule.days)) {
+      run += 1;
+    } else {
+      run = 1;
+    }
+    best = Math.max(best, run);
+  }
+
+  let current = 1;
+  for (let index = days.length - 1; index > 0; index -= 1) {
+    const gap = getDayGap(days[index - 1], days[index]);
+    if (gap <= Math.max(1, schedule.days)) {
+      current += 1;
+    } else {
+      break;
+    }
+  }
+
+  const lastDay = days[days.length - 1];
+  const gapFromToday = getDayGap(lastDay, getLocalDateKey());
+  if (gapFromToday > Math.max(1, schedule.days)) {
+    current = 0;
+  }
+
+  return { current, best };
+}
+
+function getDayGap(firstDayKey, secondDayKey) {
+  const first = parseDateKey(firstDayKey);
+  const second = parseDateKey(secondDayKey);
+  if (!first || !second) return Infinity;
+  return Math.round((second.getTime() - first.getTime()) / 86400000);
+}
+
+function getStartOfWeek(date) {
+  const start = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  start.setDate(start.getDate() - start.getDay());
+  return start;
 }
 
 function getHabitStatus(habit, schedule) {
@@ -949,4 +1310,12 @@ function getMigratedPlantId(plantId) {
 
 function saveState() {
   localStorage.setItem(storageKey, JSON.stringify(state));
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+
+  navigator.serviceWorker.register("service-worker.js").catch(() => {
+    // Offline support is optional; the app still works without a service worker.
+  });
 }
