@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Habit Garden</title>
-    <link rel="stylesheet" href="styles.css?v=0.1.1" />
+    <link rel="stylesheet" href="styles.css?v=0.1.2" />
   </head>
   <body>
     <main class="app-shell">
@@ -64,7 +64,6 @@
               <h2>Your garden</h2>
               <p id="gardenSubtitle">Each completion waters a plant once.</p>
             </div>
-            <button class="ghost-action" id="resetGarden" type="button">Reset</button>
           </div>
           <div class="weather-actions">
             <span id="weatherStatus" aria-live="polite">Garden sky is syncing...</span>
@@ -88,6 +87,7 @@
           <div class="card-actions">
             <button class="water-button" type="button">Water</button>
             <button class="reset-plant-button" type="button">Reset plant</button>
+            <button class="remove-plant-button" type="button">Remove plant</button>
           </div>
         </div>
         <div class="progress-wrap">
@@ -99,6 +99,6 @@
       </article>
     </template>
 
-    <script src="app.js?v=0.1.1"></script>
+    <script src="app.js?v=0.1.2"></script>
   </body>
 </html>

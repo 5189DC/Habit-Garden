@@ -383,7 +383,8 @@ button:focus-visible,
 .primary-action,
 .ghost-action,
 .water-button,
-.reset-plant-button {
+.reset-plant-button,
+.remove-plant-button {
   min-height: 42px;
   border: 0;
   border-radius: 8px;
@@ -1427,7 +1428,8 @@ body[data-weather="stormy"] .garden-bed {
   color: white;
 }
 
-.reset-plant-button {
+.reset-plant-button,
+.remove-plant-button {
   min-width: 86px;
   min-height: 34px;
   border: 1px solid rgba(36, 48, 42, 0.14);
@@ -1435,6 +1437,12 @@ body[data-weather="stormy"] .garden-bed {
   color: var(--soil-dark);
   font-size: 0.74rem;
   white-space: nowrap;
+}
+
+.remove-plant-button {
+  border-color: rgba(121, 54, 40, 0.24);
+  background: rgba(255, 244, 238, 0.78);
+  color: #793628;
 }
 
 .progress-wrap {

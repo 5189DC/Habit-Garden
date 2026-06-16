@@ -100,7 +100,6 @@ const gardenGrid = document.querySelector("#gardenGrid");
 const totalWatered = document.querySelector("#totalWatered");
 const plantsBloomed = document.querySelector("#plantsBloomed");
 const gardenSubtitle = document.querySelector("#gardenSubtitle");
-const resetGarden = document.querySelector("#resetGarden");
 const habitCardTemplate = document.querySelector("#habitCardTemplate");
 const useLocation = document.querySelector("#useLocation");
 const weatherStatus = document.querySelector("#weatherStatus");
@@ -116,7 +115,7 @@ habitForm.addEventListener("submit", (event) => {
   const name = habitName.value.trim();
   if (!name) return;
   if (state.habits.length >= maxGardenPlants) {
-    window.alert("Your garden has 10 plants for now. Reset or remove space before planting more.");
+    window.alert("Your garden has 10 plants for now. Remove a plant before planting more.");
     return;
   }
 
@@ -132,17 +131,6 @@ habitForm.addEventListener("submit", (event) => {
   });
 
   habitName.value = "";
-  saveState();
-  renderGarden();
-});
-
-resetGarden.addEventListener("click", () => {
-  if (!state.habits.length) return;
-
-  const shouldReset = window.confirm("Reset your whole garden?");
-  if (!shouldReset) return;
-
-  state.habits = [];
   saveState();
   renderGarden();
 });
@@ -278,6 +266,9 @@ function renderGarden() {
     card.querySelector(".reset-plant-button").addEventListener("click", () => {
       resetHabitPlant(habit);
     });
+    card.querySelector(".remove-plant-button").addEventListener("click", () => {
+      removeHabitPlant(habit);
+    });
 
     gardenGrid.append(card);
   });
@@ -355,6 +346,15 @@ function resetHabitPlant(habit) {
   habit.waterings = 0;
   habit.lastWateredAt = null;
   habit.lastWateredDay = null;
+  saveState();
+  renderGarden();
+}
+
+function removeHabitPlant(habit) {
+  const shouldRemove = window.confirm(`Remove "${habit.name}" from your garden?`);
+  if (!shouldRemove) return;
+
+  state.habits = state.habits.filter((existingHabit) => existingHabit.id !== habit.id);
   saveState();
   renderGarden();
 }
