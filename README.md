@@ -1,10 +1,10 @@
 # Habit Garden
 
-Version: `v0.1`
+Version: `v0.1.1`
 
 Habit Garden is a small habit-tracking app where completing habits grows plants in a garden bed.
 
-You can add a habit, choose which plant it should grow, choose how often you want to water it, then press **Water** when you complete that habit for the day. Each plant can only be watered once per local calendar day, so the same habit cannot be counted twice by accident. Plant choice controls the visual style:
+You can add a habit, choose which plant it should grow, choose how often you want to water it, then press **Water** when you complete that habit for the day. Each plant can only be watered once per local calendar day, so the same habit cannot be counted twice by accident. The app stores a local day key for each plant, which keeps the once-per-day lock reliable on mobile browsers. Plant choice controls the visual style:
 
 - Sprout
 - Daisy
@@ -37,6 +37,8 @@ The app can animate the garden sky from local weather using Open-Meteo current c
 ### From GitHub Pages
 
 If GitHub Pages is enabled for this repository, open the published site URL in your browser. On iPhone, open the URL in Safari and use **Share** -> **Add to Home Screen** to keep it like an app icon.
+
+If an iPhone still shows old behavior after an update, refresh the Safari page or remove and re-add the Home Screen shortcut. The app uses versioned file links to help Safari fetch the current release.
 
 Location-based weather animation requires the site to be served over HTTPS, which GitHub Pages provides.
 

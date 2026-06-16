@@ -128,6 +128,7 @@ habitForm.addEventListener("submit", (event) => {
     waterings: 0,
     createdAt: new Date().toISOString(),
     lastWateredAt: null,
+    lastWateredDay: null,
   });
 
   habitName.value = "";
@@ -339,8 +340,10 @@ function createGardenPlot(habit, index) {
 function waterHabit(habit) {
   if (wasWateredToday(habit)) return;
 
+  const wateredAt = new Date();
   habit.waterings += 1;
-  habit.lastWateredAt = new Date().toISOString();
+  habit.lastWateredAt = wateredAt.toISOString();
+  habit.lastWateredDay = getLocalDateKey(wateredAt);
   saveState();
   renderGarden();
 }
@@ -351,6 +354,7 @@ function resetHabitPlant(habit) {
 
   habit.waterings = 0;
   habit.lastWateredAt = null;
+  habit.lastWateredDay = null;
   saveState();
   renderGarden();
 }
@@ -405,15 +409,24 @@ function wasWateredRecently(habit) {
 }
 
 function wasWateredToday(habit) {
-  if (!habit.lastWateredAt) return false;
+  return getHabitWateredDay(habit) === getLocalDateKey();
+}
+
+function getHabitWateredDay(habit) {
+  if (habit.lastWateredDay) return habit.lastWateredDay;
+  if (!habit.lastWateredAt) return null;
 
   const lastWateredDate = new Date(habit.lastWateredAt);
-  if (Number.isNaN(lastWateredDate.getTime())) return false;
+  if (Number.isNaN(lastWateredDate.getTime())) return null;
 
-  const today = new Date();
-  return lastWateredDate.getFullYear() === today.getFullYear()
-    && lastWateredDate.getMonth() === today.getMonth()
-    && lastWateredDate.getDate() === today.getDate();
+  return getLocalDateKey(lastWateredDate);
+}
+
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 function getHabitStatusText(status) {
@@ -598,6 +611,7 @@ function loadState() {
       scheduleId: schedules.some((schedule) => schedule.id === habit.scheduleId)
         ? habit.scheduleId
         : getInferredScheduleId(habit),
+      lastWateredDay: getHabitWateredDay(habit),
     }));
     return nextState;
   } catch {
