@@ -112,6 +112,7 @@ const calendarView = document.querySelector("#calendarView");
 const calendarMonth = document.querySelector("#calendarMonth");
 const calendarYear = document.querySelector("#calendarYear");
 const calendarGrid = document.querySelector("#calendarGrid");
+const calendarAgenda = document.querySelector("#calendarAgenda");
 const calendarSummary = document.querySelector("#calendarSummary");
 const previousMonth = document.querySelector("#previousMonth");
 const nextMonth = document.querySelector("#nextMonth");
@@ -403,6 +404,45 @@ function renderCalendar() {
     `;
     calendarGrid.append(dayCell);
   }
+
+  renderCalendarAgenda(eventsByDay, year, month);
+}
+
+function renderCalendarAgenda(eventsByDay, year, month) {
+  calendarAgenda.innerHTML = "";
+
+  const eventDays = [...eventsByDay.entries()]
+    .map(([dayKey, events]) => ({ dayKey, events, date: parseDateKey(dayKey) }))
+    .filter(({ date, events }) => date && events.length)
+    .sort((first, second) => first.date.getTime() - second.date.getTime());
+
+  if (!eventDays.length) {
+    const empty = document.createElement("div");
+    empty.className = "calendar-agenda-empty";
+    empty.textContent = "No garden events this month.";
+    calendarAgenda.append(empty);
+    return;
+  }
+
+  eventDays.forEach(({ date, events }) => {
+    const row = document.createElement("article");
+    row.className = "calendar-agenda-row";
+    if (getLocalDateKey(date) === getLocalDateKey()) {
+      row.classList.add("is-today");
+    }
+
+    row.innerHTML = `
+      <div class="calendar-agenda-date">
+        <strong>${date.toLocaleDateString([], { weekday: "short" })}</strong>
+        <span>${date.getDate()}</span>
+        <em>${date.toLocaleDateString([], { month: "short" })}</em>
+      </div>
+      <div class="calendar-agenda-events">
+        ${events.map(createCalendarEventMarkup).join("")}
+      </div>
+    `;
+    calendarAgenda.append(row);
+  });
 }
 
 function moveCalendarMonth(direction) {
