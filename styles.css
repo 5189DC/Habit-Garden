@@ -479,6 +479,10 @@ button:focus-visible,
   font-weight: 850;
 }
 
+.test-mode-toggle[hidden] {
+  display: none !important;
+}
+
 .test-mode-toggle input {
   width: 18px;
   height: 18px;
