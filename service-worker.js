@@ -1,9 +1,9 @@
-const cacheName = "habit-garden-v0.2.1";
+const cacheName = "habit-garden-v0.2.2";
 const appShell = [
   "./",
   "./index.html",
-  "./styles.css?v=0.2.1",
-  "./app.js?v=0.2.1",
+  "./styles.css?v=0.2.2",
+  "./app.js?v=0.2.2",
   "./manifest.webmanifest",
   "./assets/app-icon.svg"
 ];
