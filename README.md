@@ -38,7 +38,7 @@ The garden panel has two tabs: **Your garden** and **Calendar**. The calendar le
 
 The garden uses staged hand-drawn plant sprites, staggered plots, soil texture, dry/freshly-watered states, stronger weather overlays, and small watering effects so plants feel more alive as habits progress. Plant motion is layered so the base stays planted while the upper leaves and flowers move gently in the breeze, with a calmer bonsai animation so the pot does not wobble. The plant artwork is stored in `assets/plants/`, with five growth-stage images for each plant.
 
-The app can animate the garden sky from local weather using Open-Meteo current conditions. Use **Use my location** to let the browser share your location for the weather animation. If location is unavailable, the app falls back to a default garden sky. Your garden is saved in the browser with `localStorage`.
+The app can animate the garden sky from local weather using Open-Meteo current conditions. It uses a saved browser location if one already exists, otherwise it tries an approximate IP-based location, then falls back to a default garden sky. Your garden is saved in the browser with `localStorage`.
 
 You can export your garden data to a JSON file and import it later on the same or another device. Version `v0.2.2` also includes a web app manifest, icon, and service worker so the app can be added to an iPhone Home Screen and cached for a more app-like experience.
 
@@ -56,7 +56,7 @@ On iPhone, open the link in Safari and use **Share** -> **Add to Home Screen** t
 
 If an iPhone still shows old behavior after an update, refresh the Safari page or remove and re-add the Home Screen shortcut. The app uses versioned file links and a versioned service-worker cache to help Safari fetch the current release.
 
-Location-based weather animation requires the site to be served over HTTPS, which GitHub Pages provides.
+Weather animation works best over HTTPS, which GitHub Pages provides.
 
 ### Directly From The Files
 

@@ -537,20 +537,6 @@ button:focus-visible,
   display: none;
 }
 
-.weather-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: -4px 0 12px;
-}
-
-.weather-actions span {
-  color: var(--muted);
-  font-size: 0.86rem;
-  font-weight: 800;
-}
-
 .garden-insights {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2322,8 +2308,7 @@ body[data-weather="stormy"] .garden-plot .layered-plant .plant-layer-moving {
 
   .topbar,
   .workspace,
-  .panel-heading,
-  .weather-actions {
+  .panel-heading {
     display: grid;
   }
 

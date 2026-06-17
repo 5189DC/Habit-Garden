@@ -10,7 +10,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/app-icon.svg" />
-    <link rel="stylesheet" href="styles.css?v=0.2.2-hide-test" />
+    <link rel="stylesheet" href="styles.css?v=0.2.2-auto-weather" />
   </head>
   <body>
     <main class="app-shell">
@@ -94,10 +94,6 @@
           </div>
 
           <div class="tab-view is-active" id="gardenView" role="tabpanel" aria-labelledby="gardenTab">
-            <div class="weather-actions">
-              <span id="weatherStatus" aria-live="polite">Garden sky is syncing...</span>
-              <button class="ghost-action" id="useLocation" type="button">Use my location</button>
-            </div>
             <div class="garden-insights" id="gardenInsights" aria-label="Garden insights"></div>
             <div class="reward-strip" id="rewardStrip" aria-label="Garden rewards"></div>
             <div class="garden-bed" id="gardenBed" aria-label="Garden bed with 10 plant plots"></div>
@@ -160,6 +156,6 @@
       </article>
     </template>
 
-    <script src="app.js?v=0.2.2"></script>
+    <script src="app.js?v=0.2.2-auto-weather"></script>
   </body>
 </html>

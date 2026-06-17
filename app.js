@@ -148,8 +148,10 @@ const rewards = [
 
 const storageKey = "habit-garden-state-v1";
 const locationStorageKey = "habit-garden-weather-location-v1";
+const ipLocationStorageKey = "habit-garden-weather-ip-location-v1";
 const plantAssetVersion = "2026-06-16-layered-2";
 const maxGardenPlants = 10;
+const ipLocationMaxAge = 1000 * 60 * 60 * 6;
 const fallbackLocation = {
   latitude: 51.5072,
   longitude: -0.1276,
@@ -178,8 +180,6 @@ const totalWatered = document.querySelector("#totalWatered");
 const plantsBloomed = document.querySelector("#plantsBloomed");
 const gardenSubtitle = document.querySelector("#gardenSubtitle");
 const habitCardTemplate = document.querySelector("#habitCardTemplate");
-const useLocation = document.querySelector("#useLocation");
-const weatherStatus = document.querySelector("#weatherStatus");
 const starterSuggestions = document.querySelector("#starterSuggestions");
 const gardenInsights = document.querySelector("#gardenInsights");
 const rewardStrip = document.querySelector("#rewardStrip");
@@ -237,10 +237,6 @@ habitForm.addEventListener("submit", (event) => {
   renderGarden();
   renderCalendarControls();
   renderCalendar();
-});
-
-useLocation.addEventListener("click", () => {
-  loadWeather({ requestLocation: true });
 });
 
 exportGarden.addEventListener("click", () => {
@@ -1265,13 +1261,9 @@ function getLastWateredText(habit) {
   })}`;
 }
 
-async function loadWeather({ requestLocation = false } = {}) {
-  weatherStatus.textContent = requestLocation ? "Asking for your sky..." : "Garden sky is syncing...";
-
+async function loadWeather() {
   try {
-    const location = requestLocation
-      ? await requestUserLocation()
-      : await getWeatherLocation();
+    const location = await getWeatherLocation();
     const response = await fetch(createWeatherUrl(location));
     if (!response.ok) throw new Error("Weather request failed");
 
@@ -1281,13 +1273,9 @@ async function loadWeather({ requestLocation = false } = {}) {
 
     document.body.dataset.weather = condition.mood;
     document.body.dataset.daylight = current.is_day ? "day" : "night";
-    weatherStatus.textContent = location.label === fallbackLocation.label
-      ? "Using fallback sky"
-      : "Using your local sky";
   } catch {
     document.body.dataset.weather = "clear";
     document.body.dataset.daylight = "day";
-    weatherStatus.textContent = "Garden sky is offline";
   }
 }
 
@@ -1295,30 +1283,10 @@ async function getWeatherLocation() {
   const savedLocation = loadSavedLocation();
   if (savedLocation) return savedLocation;
 
+  const ipLocation = await getIpLocation();
+  if (ipLocation) return ipLocation;
+
   return fallbackLocation;
-}
-
-function requestUserLocation() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error("Geolocation is unavailable"));
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const location = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          label: "Current location",
-        };
-        localStorage.setItem(locationStorageKey, JSON.stringify(location));
-        resolve(location);
-      },
-      () => reject(new Error("Location permission was denied")),
-      { enableHighAccuracy: false, maximumAge: 1000 * 60 * 30, timeout: 10000 },
-    );
-  });
 }
 
 function loadSavedLocation() {
@@ -1335,6 +1303,72 @@ function loadSavedLocation() {
   }
 
   return null;
+}
+
+async function getIpLocation() {
+  const cachedLocation = loadCachedIpLocation();
+  if (cachedLocation) return cachedLocation;
+
+  const lookups = [
+    {
+      url: "https://ipapi.co/json/",
+      parse: (data) => ({
+        latitude: data.latitude,
+        longitude: data.longitude,
+        label: data.city ? `${data.city} approximate` : "Approximate location",
+      }),
+    },
+    {
+      url: "https://ipwho.is/",
+      parse: (data) => ({
+        latitude: data.latitude,
+        longitude: data.longitude,
+        label: data.city ? `${data.city} approximate` : "Approximate location",
+      }),
+    },
+  ];
+
+  for (const lookup of lookups) {
+    try {
+      const response = await fetch(lookup.url);
+      if (!response.ok) continue;
+
+      const location = normalizeLocation(lookup.parse(await response.json()));
+      if (!location) continue;
+
+      const cached = { ...location, savedAt: Date.now() };
+      localStorage.setItem(ipLocationStorageKey, JSON.stringify(cached));
+      return location;
+    } catch {
+      // Try the next IP lookup service before falling back to the default sky.
+    }
+  }
+
+  return null;
+}
+
+function loadCachedIpLocation() {
+  try {
+    const location = JSON.parse(localStorage.getItem(ipLocationStorageKey));
+    if (!location || Date.now() - location.savedAt > ipLocationMaxAge) return null;
+
+    return normalizeLocation(location);
+  } catch {
+    return null;
+  }
+}
+
+function normalizeLocation(location) {
+  const latitude = Number(location?.latitude);
+  const longitude = Number(location?.longitude);
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+  if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null;
+
+  return {
+    latitude,
+    longitude,
+    label: location.label || "Approximate location",
+  };
 }
 
 function createWeatherUrl(location) {
